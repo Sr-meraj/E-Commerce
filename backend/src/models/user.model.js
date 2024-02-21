@@ -9,6 +9,9 @@ const userSchema = new mongoose.Schema(
             required: true,
             trim: true
         },
+        phoneNumber: {
+            type: String
+        },
         email: {
             type: String,
             required: true,
@@ -23,6 +26,11 @@ const userSchema = new mongoose.Schema(
             type: String, // cloudinary url
             required: true,
         },
+          role: {
+    type: String,
+    default: "CUSTOMER",
+    enum: ["ADMIN", "CUSTOMER",]
+  },
         refreshToken: {
             type: String
         }
