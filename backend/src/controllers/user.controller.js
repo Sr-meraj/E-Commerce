@@ -4,6 +4,21 @@ import { ApiResponse } from '../utils/ApiResponse.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
 
+const generateAccessAndRefreshToken = asyncHandler(async (userId) => {
+    try {
+        const user = User.findOne(userId);
+        const accessToken = user.generateAccessToken()
+        const refreshToken = user.generateRefreshToken()
+
+        user.refreshToken = refreshToken;
+        await user.save({ validateBeforeSave: false })
+
+        return { accessToken, refreshToken };
+    } catch (error) {
+        throw new ApiError(500,"Something went wrong while generating access and refresh token")
+    }
+})
+
 const registerUser = asyncHandler(async (req, res) => {
     // get user details from frontend
     // validation - not empty
@@ -15,7 +30,7 @@ const registerUser = asyncHandler(async (req, res) => {
     // check for user creation
     // return res 
 
-    const { fullname, email, password,phoneNumber } = req.body;
+    const { fullname, email, password, phoneNumber } = req.body;
 
     if ([fullname, email, password].some((flield) => flield?.trim() === "")) {
         throw new ApiError(400, "All fields are required")
@@ -58,10 +73,54 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     return res.status(201).json(
-        new ApiResponse(200, createdUser,"User registered successfully")
+        new ApiResponse(200, createdUser, "User registered successfully")
     )
 
 })
 
-export { registerUser };
+const loginUser = asyncHandler(async (req, res) => {
+    // req.body -> data
+    // username or email
+    // find the user
+    // password check
+    // access and refresh token
+    // res.cookies
+
+    const { email, password } = req.body;
+    if (!email) { throw new ApiError(400, "email is required") }
+    
+    // const user = await User.findOne({
+    //     $or: [{ email }, { username }]
+    // });
+    const user = await User.findOne({email})
+
+    if (!user) {
+        throw new ApiError(400, "User does not exits");
+    }
+
+    const isPasswordValid = await user.isPasswordCorrect(password);
+    if (!isPasswordValid) {
+        throw new ApiError(400, "Invalid user credentials")
+    }
+
+    const { accessToken, refreshToken } = generateAccessAndRefreshToken(user._id)
+
+    const loggedInUser = await User.findOne(user._id).select("-password -refreshToken")
+
+    res.status(200)
+        .cookies("accessToken", accessToken, options)
+        .cookies("refreshToken", refreshToken, options)
+        .json(
+            new ApiResponse(
+                200,
+                {
+                    user: loggedInUser, accessToken, refreshToken
+                },
+                "User loging successfully"
+            )
+        )
+     
+})
+
+export { registerUser, loginUser };
 
