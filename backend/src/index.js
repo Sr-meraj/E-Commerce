@@ -8,40 +8,29 @@
 
 
 import dotenv from 'dotenv';
-import express from 'express';
+import { app } from './app.js';
 import connectDB from './db/index.js';
 
-const app = express();
+const port = process.env.PORT || 8000
 
 dotenv.config({
-    path:'./env'
-})
+    path: './env'
+});
 
-app.use(express.json());
 
 
 // Database Connection with MongoDB
 connectDB()
     .then(() => {
-        app.listen(process.env.PORT || 8000, () => {
-            console.log(` Server is running at port : ${process.env.PORT}`);
-        });
+        app.listen(port, () => {
+            console.log(` Server is running at port : ${port}`);
+        })
     })
     .catch((error) => {
-    console.log("DB connection failed ", error);
-})
+        console.log("DB connection failed ", error);
+    });
 
 // API creation
 app.get('/', (req, res) => {
     res.send('Ecommerce Server running')
 });
-
-
-
-app.listen(process.env.PORT, (error) => {
-    if (!error) {
-        console.log('Server running on port '+ process.env.PORT);
-    } else {
-        console.log('Error : '+error)
-    }
-})
