@@ -15,13 +15,13 @@ const registerUser = asyncHandler(async (req, res) => {
     // check for user creation
     // return res 
 
-    const { fullname, email, password } = req.body;
+    const { fullname, email, password,phoneNumber } = req.body;
 
     if ([fullname, email, password].some((flield) => flield?.trim() === "")) {
         throw new ApiError(400, "All fields are required")
     }
 
-    const exitedUser = User.findOne({ email });
+    const exitedUser = await User.findOne({ email });
     
     // const exitedUser = User.findOne({
     //     $or: [{ email }, {otherOne}]
@@ -47,7 +47,8 @@ const registerUser = asyncHandler(async (req, res) => {
         fullname,
         avatar: avatar.url,
         email,
-        password
+        password,
+        phoneNumber
     })
 
     const createdUser = await User.findById(user._id).select("-password -refreshToken")

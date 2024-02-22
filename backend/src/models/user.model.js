@@ -26,11 +26,11 @@ const userSchema = new mongoose.Schema(
             type: String, // cloudinary url
             required: true,
         },
-          role: {
-    type: String,
-    default: "CUSTOMER",
-    enum: ["ADMIN", "CUSTOMER",]
-  },
+        role: {
+            type: String,
+            default: "CUSTOMER",
+            enum: ["ADMIN", "CUSTOMER",]
+        },
         refreshToken: {
             type: String
         }
