@@ -43,17 +43,17 @@ const registerUser = asyncHandler(async (req, res) => {
     // check for user creation
     // return res 
 
-    const { fullname, email, password, phone } = req.body;
+    const { fullname, email, password, phone, username } = req.body;
 
     if ([fullname, email, password].some((flield) => flield?.trim() === "")) {
         throw new ApiError(400, "All fields are required")
     }
 
-    const exitedUser = await User.findOne({ email });
+    // const exitedUser = await User.findOne({ email });
     
-    // const exitedUser = User.findOne({
-    //     $or: [{ email }, {otherOne}]
-    // });
+    const exitedUser = User.findOne({
+        $or: [{ email }, {username}]
+    });
 
     if (exitedUser) {
         throw new ApiError(409, "User with email already exits")
@@ -75,6 +75,7 @@ const registerUser = asyncHandler(async (req, res) => {
         fullname,
         avatar: avatar.url,
         email,
+        username: username.toLowerCase(),
         password,
         phone
     })
@@ -99,15 +100,15 @@ const loginUser = asyncHandler(async (req, res) => {
     // access and refresh token
     // res.cookies
 
-    const { email, password } = req.body;
-    if (!email) {
-        throw new ApiError(400, "email is required")
+    const { username, email, password } = req.body;
+    if (!(email||username)) {
+        throw new ApiError(400, "email or username is required")
     }
     
-    // const user = await User.findOne({
-    //     $or: [{ email }, { username }]
-    // });
-    const user = await User.findOne({ email })
+    const user = await User.findOne({
+        $or: [{ email }, { username }]
+    });
+    // const user = await User.findOne({ email })
 
     if (!user) {
         throw new ApiError(404, "User does not exits");
@@ -229,6 +230,58 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 
 })
 
+const getCurrentUser = asyncHandler(async (req, res) => {
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            req.user,
+            "User fetched successfully"
+        )
+    )
+});
+
+const changeAccountDetails = asyncHandler(async (req, res) => {
+    const { fullname, email, phone } = req.body;
+    if (!fullname && !email && !phone) {
+        throw new ApiError( 400, "All fields are required" )
+    }
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                fullname, email, phone
+            }
+        },
+        { new: true }
+    ).select("-password");
+
+    return res.status(200).json(new ApiResponse(200, user, "Account details updated successfully"));
+})
+
+const updateUserAvatar = asyncHandler(async (req, res) => {
+    const avatarLocalFile = req.file?.path;
+    if (!avatarLocalFile) {
+        throw new ApiError(400, "Avatar file missing");
+    }
+    
+    const avatar = await uploadOnCloudinary(avatarLocalFile)
+    if (avatar?.url) {
+        throw new ApiError(400, "Error while uploading a avatar");
+    }
+
+    const user = await User.findOneAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                avatar: avatar.url
+            }
+        },
+        { new: true }
+    ).select("-password")
+
+    return res.status(200).json(new ApiResponse(200, user, "Avatar updated successfully"));
+
+})
 
 
 
@@ -238,6 +291,10 @@ export {
     logout,
     refreshAccessToken,
     changeCurrentPassword,
+    getCurrentUser,
+    changeAccountDetails,
+    updateUserAvatar,
+
 
 };
 
