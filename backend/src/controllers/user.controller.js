@@ -5,6 +5,7 @@ import { ApiResponse } from '../utils/ApiResponse.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
 
+
 /**
  * The function generates access and refresh tokens for a user and saves the refresh token to the user
  * document.
@@ -208,5 +209,35 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         );
 })
 
-export { registerUser, loginUser, logout, refreshAccessToken };
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+
+    const user = await User.findById(req.user?. _id)
+
+    const isPasswordValid = await user.isPasswordCorrect(oldPassword)
+
+    if (!isPasswordValid) {
+        throw new ApiError(400, "Invalid old password")
+    }
+
+    user.password = newPassword
+    await user.save({ validateBeforeSave: false })
+    
+    res.status(200).json(
+        new ApiResponse(200,{},"Password changed successfully")
+    )
+
+})
+
+
+
+
+export {
+    registerUser,
+    loginUser,
+    logout,
+    refreshAccessToken,
+    changeCurrentPassword,
+
+};
 
