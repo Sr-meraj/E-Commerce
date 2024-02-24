@@ -18,16 +18,47 @@ const userSchema = new mongoose.Schema(
             lowercase:true,
             trim: true,
         },
-        email: {
+         email: {
             type: String,
             required: true,
-            lowercase:true,
+            unique: true,
+            lowercase: true,
             trim: true,
+            validate: {
+                validator: (value) => {
+                    // Validate email format
+                    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+)\.)+[a-zA-Z]{2,})$/;
+                    return re.test(String(value).toLowerCase());
+                },
+                message: 'Invalid email format'
+            }
         },
         password: {
             type: String,
-            required: [true,"Password is required"],
+            required: true
         },
+        phone: {
+            type: String,
+            required: true,
+            minlength: 10,
+            maxlength: 15
+        },
+        address: {
+            type: String,
+            required: true
+        },
+        orders: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Order'
+            }
+        ],
+        carts: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Cart'
+            }
+        ],
         avatar: {
             type: String, // cloudinary url
             required: true,

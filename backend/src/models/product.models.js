@@ -1,5 +1,4 @@
-// Product.js
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 const slug = require('mongoose-slug-generator');
 
 const options = {
@@ -10,8 +9,7 @@ const options = {
 
 mongoose.plugin(slug, options);
 
-
-const productSchema = new mongoose.Schema(
+const productSchema = new Schema(
   {
     title: {
       type: String,
@@ -23,17 +21,14 @@ const productSchema = new mongoose.Schema(
       unique: true
     },
     sku: {
-      type: String
+      type: String,
+      unique: true,
     },
     description: {
       type: String,
       required: true,
     },
-    productImage: {
-      type: String,
-      required: true,
-    },
-    gallery: [
+    productImages: [
       {
         type: String,
         required: true,
@@ -65,10 +60,12 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: true
     },
-    owner: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-    },
+    reviews: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Review",
+      }
+    ]
   },
   { timestamps: true }
 );
