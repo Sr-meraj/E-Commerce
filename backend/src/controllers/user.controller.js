@@ -3,7 +3,7 @@ import { User } from '../models/user.model.js';
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
-import { uploadOnCloudinary } from '../utils/cloudinary.js';
+import { deleteFromCloudinary, uploadOnCloudinary } from '../utils/cloudinary.js';
 
 
 /**
@@ -259,17 +259,28 @@ const changeAccountDetails = asyncHandler(async (req, res) => {
 })
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
+    let user = req.user;
+    // Make sure the user exists
+    if (!user) {
+        throw new ApiError(404, 'The user does not exist');
+    }
+
+    const oldAvatar = user.avatar;
+    const public_id = oldAvatar.split("/").pop().split(".")[0]
+
+    // Check image field in request body
     const avatarLocalFile = req.file?.path;
     if (!avatarLocalFile) {
-        throw new ApiError(400, "Avatar file missing");
+        throw new ApiError(400, "No file uploaded");
     }
-    
+    console.log('oldimage ',oldAvatar);
+    console.log('public_id ',public_id);
     const avatar = await uploadOnCloudinary(avatarLocalFile)
-    if (avatar?.url) {
+    if (!avatar.url) {
         throw new ApiError(400, "Error while uploading a avatar");
     }
 
-    const user = await User.findOneAndUpdate(
+    const userDoc = await User.findOneAndUpdate(
         req.user?._id,
         {
             $set: {
@@ -279,7 +290,12 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
         { new: true }
     ).select("-password")
 
-    return res.status(200).json(new ApiResponse(200, user, "Avatar updated successfully"));
+     // Delete the old image from Cloudinary if the avatar has changed
+    if (oldAvatar && userDoc.avatar !== oldAvatar) {
+        await deleteFromCloudinary(public_id);
+    }
+
+    return res.status(201).json(new ApiResponse(201, userDoc, "Avatar updated successfully"));
 
 })
 
