@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-const slug = require('mongoose-slug-generator');
+import slug from 'mongoose-slug-generator';
 
 const options = {
   separator: '-',
@@ -17,7 +17,6 @@ const productSchema = new Schema(
     },
     slug: {
       type: String,
-      slug: 'title',
       unique: true
     },
     sku: {
@@ -45,11 +44,11 @@ const productSchema = new Schema(
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Category',
-      required: true,
+      required: true
     },
     subcategory: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Subcategory',
+      ref: 'Category'
     },
     brand: {
       type: mongoose.Schema.Types.ObjectId,

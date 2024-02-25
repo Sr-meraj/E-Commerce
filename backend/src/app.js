@@ -22,7 +22,8 @@ import userRouter from './routes/user.route.js';
 // routes declaration
 
 app.use('/api/v1/users', userRouter)
-app.use('/api/v1/product', productRouter)
+app.use('/api/v1/products', productRouter)
+app.use('/api/v1/categories', productRouter)
 
 
 
