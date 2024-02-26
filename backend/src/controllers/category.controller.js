@@ -1,63 +1,100 @@
 
-import { Category } from "../models/Category.model";
-import { ApiError } from "../utils/ApiError";
-import { ApiResponse } from "../utils/ApiResponse";
-import { asyncHandler } from "../utils/asyncHandler";
+import mongoose from "mongoose";
+import { Category } from "../models/Category.model.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 const createCategory = asyncHandler(async (req, res) => {
-    const { name, parentCategoryId } = req.body;
-    
+    const { name, slug, parentCategoryId } = req.body;
+
     if (!name) {
-        res.status(400).json(new ApiError(400, "Category Required"))
+        return res.status(400).json(new ApiError(400, "Category Required"));
     }
 
     try {
+        let category = await Category.findOne({ slug: slug });
+
+        if (category) {
+            return res.status(409).json(new ApiError(409,'', "Category Already Exists"));
+        }
+
         const newCategory = await Category.create({
             name,
-            parentCategory: parentCategoryId || null,
+            slug,
+            parentCategory: parentCategoryId ? await Category.findById(parentCategoryId) : null,
         });
 
         res.status(201).json(new ApiResponse(201, newCategory, "Category created successfully"));
-        
+
     } catch (error) {
-        res.status(400).json(new ApiError(400, 'Bad Request'));
+        console.error(error); // Log the error for debugging purposes
+        res.status(500).json(new ApiError(500, 'Internal Server Error'));
     }
 });
 
+
 const getAllCategories = asyncHandler(async (req, res) => {
     try {
-        const categories = await Category.find();
+        const categories = await Category.find({parentCategory:null});
         res.status(200).json(new ApiResponse(201, categories, "Categories fetched successfully"));
     } catch (error) {
         res.status(500).json(new ApiError(500, 'Internal Server Error'));
     }
 });
 
-const getCategoryById = asyncHandler(async (req, res) => {
+const subCategories = asyncHandler(async (req, res) => {
     const { categoryId } = req.params;
 
     try {
-        const category = await Category.findById(categoryId);
-        if (!category) {
+        const result = await Category.aggregate([
+            {
+                $match: { _id: new mongoose.Types.ObjectId(categoryId) }
+            },
+            {
+                $lookup: {
+                    from: 'categories', localField: '_id', foreignField: "parentCategory", as: "subcategories"
+                }
+            },
+            {
+                $project: {
+                    subcategories: 1
+                }
+            }
+        ]);
+
+        if (result.length === 0) {
             return res.status(404).json(new ApiError(404, 'Category not found'));
         }
-        res.status(200).json(new ApiResponse(200, category, "Categories fetched successfully"));
-      
-    } catch (error) {
-        res.status(500).json(new ApiError(500, 'Internal Server Error'));
 
+        // Extract parent category and subcategories from the result
+
+        const [parentCategory] = result;
+        const { subcategories } = parentCategory;
+
+        // Include the parent category and subcategories in the response
+        const response = {
+           ...parentCategory
+        };
+
+        res.status(200).json(new ApiResponse(200, response, 'SubCategories fetched successfully'));
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json(new ApiError(500, 'Internal Server Error'));
     }
 });
 
+
 const updateCategory = asyncHandler(async (req, res) => {
     const { categoryId } = req.params;
-    const { name, parentCategoryId } = req.body;
+    const { name,slug, parentCategoryId } = req.body;
 
     try {
         const updatedCategory = await Category.findByIdAndUpdate(
             categoryId,
             {
-                name,
+                name,slug,
                 parentCategory: parentCategoryId || null
             },
             { new: true }
@@ -74,11 +111,37 @@ const updateCategory = asyncHandler(async (req, res) => {
     }
 });
 
+// delete category
+const deleteCategory = asyncHandler(async (req, res) => {
+    const { categoryId } = req.params;
+
+    try {
+        // Check if the category exists
+        const existingCategory = await Category.findById({_id: categoryId});
+        if (!existingCategory) {
+            return res.status(404).json(new ApiError(404, "",'Category not found'));
+        }
+
+        // Delete the category
+        const deletedCategory = await Category.findByIdAndDelete({_id: categoryId});
+        if (!deletedCategory) {
+            return res.status(404).json(new ApiError(404, "",'Category not found'));
+        }
+
+        // Respond with success message
+        res.status(200).json(new ApiResponse(200, {}, `${deletedCategory.name} Category Deleted Successfully`));
+    } catch (error) {
+        console.error(error);
+        res.status(500).json(new ApiError(500, "",'Internal Server Error'));
+    }
+});
+
 
 export {
     createCategory,
+    deleteCategory,
     getAllCategories,
-    getCategoryById,
+    subCategories,
     updateCategory
 };
 

@@ -1,13 +1,5 @@
 import mongoose from 'mongoose';
-import slug from 'mongoose-slug-generator';
 
-const options = {
-  separator: '-',
-  lang: 'en',
-  truncate: 120
-};
-
-mongoose.plugin(slug, options);
 const categorySchema = new mongoose.Schema({
   name: {
     type: String,
@@ -15,7 +7,6 @@ const categorySchema = new mongoose.Schema({
   },
   slug: {
     type: String,
-    slug: 'name',
     required: true,
     unique: true
   },

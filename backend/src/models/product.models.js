@@ -1,13 +1,4 @@
 import mongoose, { Schema } from 'mongoose';
-import slug from 'mongoose-slug-generator';
-
-const options = {
-  separator: '-',
-  lang: 'en',
-  truncate: 120
-};
-
-mongoose.plugin(slug, options);
 
 const productSchema = new Schema(
   {
@@ -36,6 +27,10 @@ const productSchema = new Schema(
     price: {
       type: Number,
       default: 0,
+    },
+    discountedPrice: {
+      type: Number,
+      default: null,
     },
     stock: {
       type: Number,
