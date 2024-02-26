@@ -44,8 +44,7 @@ const userSchema = new mongoose.Schema(
             maxlength: 15
         },
         address: {
-            type: String,
-            required: true
+            type: String
         },
         orders: [
             {

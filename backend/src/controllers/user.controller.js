@@ -51,12 +51,17 @@ const registerUser = asyncHandler(async (req, res) => {
 
     // const exitedUser = await User.findOne({ email });
     
-    const exitedUser = User.findOne({
-        $or: [{ email }, {username}]
+    const existingUser = await User.findOne({
+        $or: [
+            { email },
+            { username: username.toLowerCase() }
+        ]
     });
 
-    if (exitedUser) {
-        throw new ApiError(409, "User with email already exits")
+    if (existingUser) {
+        res.status(409).json(
+             new ApiError(409, "User with username or email already exits",'User with this Email or Username already exists')
+            )
     }
 
     const avatarLocalPath = req.files?.avatar[0]?.path;
@@ -80,14 +85,17 @@ const registerUser = asyncHandler(async (req, res) => {
         phone
     })
 
-    const createdUser = await User.findById(user._id).select("-password -refreshToken")
+    // TODO:  Remove this after testing
+    const createdUser = await User.findById(user._id).select("-refreshToken")
+    
+    // const createdUser = await User.findById(user._id).select("-password -refreshToken")
 
     if (!createdUser) {
         throw new ApiError(500, "Something went wrong while registering the user")
     }
 
     return res.status(201).json(
-        new ApiResponse(200, createdUser, "User registered successfully")
+        new ApiResponse(201, createdUser, "User registered successfully")
     )
 
 })
@@ -101,8 +109,12 @@ const loginUser = asyncHandler(async (req, res) => {
     // res.cookies
 
     const { username, email, password } = req.body;
-    if (!(email||username)) {
-        throw new ApiError(400, "email or username is required")
+    if (!(email || username)) {
+        //dev
+        // throw new ApiError(400, "email or username field is required")
+
+        // production
+        res.status(400).json(new ApiError(400, "", "email or username field is required"));
     }
     
     const user = await User.findOne({
@@ -111,13 +123,20 @@ const loginUser = asyncHandler(async (req, res) => {
     // const user = await User.findOne({ email })
 
     if (!user) {
-        throw new ApiError(404, "User does not exits");
+        //dev
+        // throw new ApiError(404, "user does not exist");
+        //production
+        res.status(404).json(new ApiError(404, "", "User does not exist."));
     }
 
     const isPasswordValid = await user.isPasswordCorrect(password);
 
     if (!isPasswordValid) {
-        throw new ApiError(401, "Invalid user credentials")
+        //dev
+        // throw new ApiError(401, "Invalid user credentials")
+        
+        // production
+        res.status(401).json(new ApiError(401, "", "Invalid user credentials"));
     }
 
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id)

@@ -8,7 +8,10 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
         // const token = req?.cookie?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
         const token = req?.cookie?.accessToken || req.header("Authorization")?.split(" ")[1];
         if (!token) {
-            throw new ApiError(401, "Unauthorized request!")
+            //dev
+            // throw new ApiError(401, "Unauthorized request!")
+            // production
+            res.status(401).json(new ApiError(401, '', "Unauthorized request!"));
         }
     
         const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
@@ -16,14 +19,21 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
         const user = await User.findById(decodedToken?._id).select("-password -refreshToken")
         
         if (!user) {
-            throw new ApiError(401, "Invalid Access Token")
+            // dev
+            // throw new ApiError(401, "Invalid Access Token")
+
+            // production
+            res.status(401).json(new ApiError(401, '', "Invalid Access Token"));
         }
     
         req.user = user;
         next();
 
     } catch (error) {
-        throw new ApiError(500, error?.message || "Invalid Access Token")
+        // dev
+        // throw new ApiError(500, error?.message || "Invalid Access Token")
+        // production
+        res.status(500).json(new ApiError(500, '', error?.message || "Invalid Access Token"));
     }
 });
 
@@ -34,6 +44,7 @@ export const adminCheck = asyncHandler(async (req, res, next) => {
 
         /* This code snippet is checking if the user making the request is an admin. */
         if (isAdmin !== "ADMIN") {
+
             throw new ApiError(403, "Permission denied. Admin access required.");
         }
 
