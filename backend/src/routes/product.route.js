@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { getAllProducts, getProductById, newProduct, productUpdate } from '../controllers/product.controller.js'
+import { deleteProduct, getAllProducts, getProductById, newProduct, productUpdate } from '../controllers/product.controller.js'
 import { verifyJWT } from '../middleweres/auth.middlewere.js'
 import { upload } from '../middleweres/multer.middlewere.js'
 
@@ -31,6 +31,7 @@ router.route("/update/:id").put(
     ]),
     productUpdate
 )
+router.route('/delete/:id').delete(verifyJWT, deleteProduct)
     
 export default router 
 

@@ -308,8 +308,37 @@ const productUpdate = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, updatedProduct, 'Product updated successfully'));
 });
 
+// delete the product controller 
+const deleteProduct = asyncHandler(async (req, res) => {
+    const prodId = req.params.id;
+
+    try {
+        // Find the product by id from the database using findOne() method of mongoose model
+        const product = await Product.findById(prodId);
+
+        // If no product is found, throw an error
+        if (!product) {
+            throw new ApiError(404, null, 'No product found with that Id');
+        }
+
+        // Delete the image associated with this product from cloudinary
+        const deletePromises = product.productImages.map(async (url) => {
+            const public_id = url.split("/").pop().split(".")[0];
+            await deleteFromCloudinary(public_id);
+        });
+        await Promise.all(deletePromises);
+
+        // Delete the product from the database
+        await Product.findByIdAndDelete(prodId);
+
+        // Send the response with a 204 status code and success message
+        res.status(204).json(new ApiResponse(204, '', 'Product has been deleted Successfully!'));
+    } catch (error) {
+        // Handle any errors that occurred during the process
+        res.status(error.status || 500).json(new ApiResponse(error.status || 500, null, error.message));
+    }
+});
 
 
-
-export { newProduct, getAllProducts, getProductById, productUpdate };
+export { newProduct, getAllProducts, getProductById, productUpdate, deleteProduct };
 
