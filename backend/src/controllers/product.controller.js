@@ -1,8 +1,9 @@
+import mongoose from "mongoose";
 import { Product } from "../models/product.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const newProduct = asyncHandler(async (req, res) => {
     try {
@@ -73,22 +74,156 @@ const getAllProducts = asyncHandler(async (req, res) => {
     const currentPage = +req.query.page || 0;
     const searchParams = req.query.search;
 
-    const queryObj = searchParams ? {title: {$regex : searchParams , $options: "i"}} : {};
-
+    const queryObj = searchParams
+        ? {
+            $or: [
+                { title: { $regex: searchParams, $options: "i" } },
+                { sku: { $regex: searchParams, $options: "i" } },
+                { slug: { $regex: searchParams, $options: "i" } },
+            ],
+        }
+        : {};
     
     const products = await Product.find(queryObj)
-    .skip(pageSize * currentPage)
-    .limit(pageSize)
-    .sort('-createdAt');
+        .skip(pageSize * currentPage)
+        .limit(pageSize)
+        .sort('-createdAt');
     
     const countTotalProducts = await Product.find(queryObj).countDocuments();
 
 
-    return res.status(200).json(new ApiResponse(200,{products, totalProducts: countTotalProducts},"Products retrieved successfully"));
-})
+    return res.status(200).json(new ApiResponse(200, { products, totalProducts: countTotalProducts }, "Products retrieved successfully"));
+});
+
+
+
+const getProductById = asyncHandler(async (req, res) => {
+    try {
+        const prodId = req.params.id;
+
+        // Find the product by ID
+        const product = await Product.findById(prodId);
+
+        if (!product) {
+            // If the product is not found, throw an ApiError with a 404 status code
+            res.status(404).json(new ApiError(404, null, 'No product found'));
+        }
+
+        // Aggregate with category, subcategory and brand to include them in the response
+        const singleProduct = await Product.aggregate([
+            {
+                $match: {
+                    _id: new mongoose.Types.ObjectId(prodId) // Convert string to ObjectId
+                }
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "category",
+                    foreignField: "_id",
+                    as: "category"
+                }
+            },
+            {
+                $addFields: {
+                    category: {
+                        $first: "$category"
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "subcategory",
+                    foreignField: "_id",
+                    as: "subcategory"
+                }
+            },
+            {
+                $addFields: {
+                    subcategory: {
+                        $first: "$subcategory"
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: "brands",
+                    localField: "brand",
+                    foreignField: "_id",
+                    as: "brand"
+                }
+            },
+            {
+                $addFields: {
+                    brand: {
+                        $first: "$brand"
+                    }
+                }
+            }
+        ]
+        );
+
+
+        // Send the response with a 200 status code and the product
+        res.status(200).json(new ApiResponse(200, singleProduct, 'Product fetched by id'));
+    } catch (error) {
+        // Handle any errors that occurred during the process
+        res.status(error.status || 500).json(new ApiResponse(error.status || 500, null, error.message));
+    }
+});
+
+// product update
+const productUpdate = asyncHandler(async (req, res) => {
+    const prodId = req.params.id;
+
+    // Find the product by ID
+    let product = await Product.findById(prodId);
+
+    // Make sure the product exists
+    if (!product) {
+        return res.status(404).json(new ApiError(404, null, 'No product found'));
+    }
+
+    // Remove from Cloudinary using the public_id only if new images are provided
+    if (req.files && req.files.productImages && product.productImages.length > 0) {
+        const deletePromises = product.productImages.map(async (url) => {
+            const public_id = url.split("/").pop().split(".")[0];
+            await deleteFromCloudinary(public_id);
+        });
+        await Promise.all(deletePromises);
+    }
+
+    let newProductImages;
+    // Check if "productImages" exists in req.files
+    if (req.files && req.files.productImages) {
+        const uploadPromises = req.files.productImages.map(async (file) => {
+            const result = await uploadOnCloudinary(file.path);
+            if (result.error) {
+                return res.status(500).json(new ApiError(500, "", "Something went wrong while uploading product images"));
+            }
+            return result.url;
+        });
+
+        newProductImages = await Promise.all(uploadPromises);
+    }
+
+    // Update other fields in the product
+    const updatedProductData = { ...req.body, productImages: newProductImages };
+
+    // Update product data excluding productImages if new images are not provided
+    const updatedProduct = await Product.findByIdAndUpdate(
+        prodId,
+        {...updatedProductData},
+        { new: true, runValidators: true, upsert: false }
+    );
+
+    // Send the response with a 200 status code and the updated product
+    res.status(200).json(new ApiResponse(200, updatedProduct, 'Product updated successfully'));
+});
 
 
 
 
-export { newProduct, getAllProducts };
+export { newProduct, getAllProducts, getProductById, productUpdate };
 
