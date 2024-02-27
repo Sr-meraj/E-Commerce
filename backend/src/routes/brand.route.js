@@ -1,24 +1,24 @@
 import { Router } from 'express';
-import { createBrand } from '../controllers/brand.controller.js';
-import { adminCheck, verifyJWT } from '../middleweres/auth.middlewere.js';
+import { createBrand, deleteBrand, getAllBrands, updateBrand } from '../controllers/brand.controller.js';
+import { verifyJWT } from '../middleweres/auth.middlewere.js';
 import { upload } from '../middleweres/multer.middlewere.js';
 
 const router = Router()
 
-router.route('/').get();
-router.route('/:brandId').get();
+router.route('/').get(getAllBrands);
+// router.route('/:brandId').get();
 
 
 // secure routes
 router.route('/create').post(
-    verifyJWT, upload.single('brandImage'), createBrand
+    verifyJWT, upload.single('image'), createBrand
 );
 
 router.route('/update/:brandId').put(
-    verifyJWT, adminCheck,  
+    verifyJWT,  upload.single('image'), updateBrand
 );
 router.route('/delete/:brandId').delete(
-    verifyJWT, adminCheck,  
+    verifyJWT,  deleteBrand
 );
 
 

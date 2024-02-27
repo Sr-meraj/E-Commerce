@@ -1,40 +1,42 @@
 
 import { Brand } from "../models/brand.model.js";
+import { Product } from "../models/product.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const createBrand = asyncHandler(async (req, res) => {
-    const { name, brandImage } = req.body;
+    const { name } = req.body;
 
-    if (!(name || brandImage)){
-        return res.status(400).json(new ApiError(400, "", "All Field are Required"));
+    if (!name || !req.file) {
+        return res.status(400).json(new ApiError(400, "", "Name and Brand Image are Required"));
     }
 
-    let brand = await Brand.findOne({name});
-    // check  if the brand already exists in the database or not
+    let brand = await Brand.findOne({ name });
+
+    // Check if the brand already exists in the database
     if (brand) {
-        return res.status(409).json(new ApiError(409,'', "This brand already exists"));
+        return res.status(409).json(new ApiError(409, '', "This brand already exists"));
     }
 
-    try {
-        const brandImagePath = req.file?.path;  
-        
-        // upload on coudinary
-        const imageData = await uploadOnCloudinary(brandImagePath);
-        
-        const newBrand = await Brand.create({
-            name,
-            brandImage: imageData.url,
-        });
+    let brandImagePath;
 
-        return res.status(201).json(new ApiResponse(201, {newBrand}, "Brand created successfully"));
-
-    } catch (error) {
-        console.error(error); // Log the error for debugging purposes
-        res.status(500).json(new ApiError(500, '','Internal Server Error'));
+    // If image is uploaded, save it to Cloudinary
+    if (req.file) {
+        try {
+            const result = await uploadOnCloudinary(req.file.path);
+            brandImagePath = result.url;
+        } catch (err) {
+            console.log("error", err);
+            return res.status(500).send(new ApiError(500, "Server Error", "Internal Server Error"));
+        }
     }
+
+    // Create brand with the provided data and image path
+    brand = await Brand.create({ ...req.body, image: brandImagePath });
+
+    return res.status(201).json(new ApiResponse(201, 'Created Successfully', brand));
 });
 
 const getAllBrands = asyncHandler(async (req, res) => {
@@ -49,90 +51,78 @@ const getAllBrands = asyncHandler(async (req, res) => {
 const updateBrand = asyncHandler(async (req, res) => {
     const { brandId } = req.params;
     const { name } = req.body;
-    const brand = await Brand.findById( brandId );
-    const oldBrandImage = brand?.brandImage;
+    const brand = await Brand.findById(brandId);
     
     if (!brand) {
-        res.status(404).json(new ApiError(404,"","Brand not found"))
+        return res.status(404).json(new ApiError(404, "", "Brand not found"));
     }
-     const public_id = oldBrandImage.split("/").pop().split(".")[0]; 
-     
-     // remove from cloudinary
-     await deleteFromCloudinary(public_id);
 
-    // If there is a new image, we will upload it to Cloudinary and save its URL in the database
-    let updatedBrandImage = "";
-    if ("brandImage" in req.files){
-         const result = await uploadOnCloudinary(req.file.brandImage);
+    // Remove from Cloudinary using the public_id
+    if (brand.image) {
+        const public_id = brand.image.split("/").pop().split(".")[0];
+        await deleteFromCloudinary(public_id);
+    }
+
+    let updatedBrandImage = brand.image; // Default to the old brand image
+
+    // Check if "image" exists in req.files
+    if (req.file && req.file.path) {
+        const result = await uploadOnCloudinary(req.file.path);
         if (result.error) {
-            return res.status(500).json(new ApiError(500,"","Something went wrong while registering the user"))
-        } else {
-              updatedBrandImage = result.url;  
-         }  
-    }else{
-          updatedBrandImage = oldBrandImage;
+            return res.status(500).json(new ApiError(500, "", "Something went wrong while uploading the brand image"));
+        }
+        updatedBrandImage = result.url;
     }
-   
 
-    // const updatedBrandImagePath = req.file?.path;
-
-    // if (updatedBrandImagePath) {
-    //     const newImagePath = await uploadOnCloudinary(updatedBrandImagePath);
-
-    //     if (!newImagePath) {
-    //         return res.status(500).json(new ApiError(500,"Something went wrong while registering the user","Something went wrong while registering the user"))
-    //     }
-    // }
-
-    
     try {
         const brandDoc = await Brand.findByIdAndUpdate(
             brandId,
             {
                 $set: {
                     name,
-                    brandImage: updatedBrandImage
-                }
+                    image: updatedBrandImage,
+                },
             },
             { new: true }
-        )
+        );
 
-    // Delete the old image from Cloudinary if the brand image has changed
-    if (oldBrandImage && brandDoc.brandImage !== oldBrandImage) {
-        await deleteFromCloudinary(public_id);
-    }
-
-    return res.status(201).json(new ApiResponse(201, userDoc, "Brand updated successfully"));
-} catch (error) {
-    return res.status(500).json(new ApiError(500, 'Internal Server Error', "Internal Server Error"));
-    }
-})
-
-const deleteBrand = asyncHandler(async (req, res) => {
-    const { brandId } = req.params;
-    
-    // // Check if the category exists
-    // const existingBrand = await Brand.findById({_id: brandId});
-    // if (!existingBrand) {
-    //     return res.status(404).json(new ApiError(404, "",'Brand not found'));
-    // }
-
-    try {
-        // Delete the category
-        const deletedBrand = await Brand.findByIdAndDelete({ _id: brandId });
-        
-        if (!deletedBrand) {
-            return res.status(404).json(new ApiError(404, "",'Brand not found'));
-        }
-
-        // Respond with success message
-        res.status(200).json(new ApiResponse(200, {}, `${deletedBrand.name} Brand Deleted Successfully`));
+        return res.status(201).json(new ApiResponse(201, brandDoc, "Brand updated successfully"));
     } catch (error) {
-        console.error(error);
-        res.status(500).json(new ApiError(500, "",'Internal Server Error'));
+        return res.status(500).json(new ApiError(500, 'Internal Server Error', "Internal Server Error"));
     }
 });
 
+
+const deleteBrand = asyncHandler(async (req, res) => {
+  const { brandId } = req.params;
+
+  // Check if the brand exists
+  const existingBrand = await Brand.findById(brandId);
+  if (!existingBrand) {
+    return res.status(404).json(new ApiError(404, "",'Brand not found'));
+  }
+
+  // Check if the brand is associated with any products
+  const products = await Product.find({ brand: brandId });
+  if (products.length > 0) {
+    return res.status(409).json(new ApiError(409, "",'Brand is associated with products'));
+  }
+
+  try {
+    // Delete the brand
+    const deletedBrand = await Brand.findByIdAndDelete( brandId );
+    
+    if (!deletedBrand) {
+      return res.status(404).json(new ApiError(404, "",'Brand not found'));
+    }
+
+    // Respond with success message
+    res.status(200).json(new ApiResponse(200, {}, `${deletedBrand.name} Brand deleted successfully`));
+  } catch (error) {
+    console.error(error);
+    res.status(500).json(new ApiError(500, "",'Internal Server Error'));
+  }
+});
 
 
 export {
