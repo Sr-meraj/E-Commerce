@@ -69,32 +69,118 @@ const newProduct = asyncHandler(async (req, res) => {
 });
 
 // Get all products
+// const getAllProducts = asyncHandler(async (req, res) => {
+//     const pageSize = +req.query.limit || 6;
+//     const currentPage = +req.query.page || 0;
+//     const searchParams = req.query.search;
+
+//     const queryObj = searchParams
+//         ? {
+//             $or: [
+//                 { title: { $regex: searchParams, $options: "i" } },
+//                 { sku: { $regex: searchParams, $options: "i" } },
+//                 { slug: { $regex: searchParams, $options: "i" } },
+//             ],
+//         }
+//         : {};
+    
+//     const products = await Product.find(queryObj)
+//         .skip(pageSize * currentPage)
+//         .limit(pageSize)
+//         .sort('-createdAt');
+    
+//     const countTotalProducts = await Product.find(queryObj).countDocuments();
+
+
+//     return res.status(200).json(new ApiResponse(200, { products, totalProducts: countTotalProducts }, "Products retrieved successfully"));
+// });
+
 const getAllProducts = asyncHandler(async (req, res) => {
     const pageSize = +req.query.limit || 6;
     const currentPage = +req.query.page || 0;
     const searchParams = req.query.search;
 
-    const queryObj = searchParams
+    // Create a query object for search conditions
+    const searchQuery = searchParams
         ? {
-            $or: [
-                { title: { $regex: searchParams, $options: "i" } },
-                { sku: { $regex: searchParams, $options: "i" } },
-                { slug: { $regex: searchParams, $options: "i" } },
-            ],
-        }
+              $or: [
+                  { title: { $regex: searchParams, $options: "i" } },
+                  { sku: { $regex: searchParams, $options: "i" } },
+                  { slug: { $regex: searchParams, $options: "i" } },
+              ],
+          }
         : {};
-    
-    const products = await Product.find(queryObj)
-        .skip(pageSize * currentPage)
-        .limit(pageSize)
-        .sort('-createdAt');
-    
-    const countTotalProducts = await Product.find(queryObj).countDocuments();
 
+    // Combine search conditions with the aggregation pipeline
+    const pipeline = [
+        {
+            $match: searchQuery,
+        },
+        {
+            $lookup: {
+                from: "categories",
+                localField: "category",
+                foreignField: "_id",
+                as: "category",
+            },
+        },
+        {
+            $addFields: {
+                category: {
+                    $first: "$category",
+                },
+            },
+        },
+        {
+            $lookup: {
+                from: "categories",
+                localField: "subcategory",
+                foreignField: "_id",
+                as: "subcategory",
+            },
+        },
+        {
+            $addFields: {
+                subcategory: {
+                    $first: "$subcategory",
+                },
+            },
+        },
+        {
+            $lookup: {
+                from: "brands",
+                localField: "brand",
+                foreignField: "_id",
+                as: "brand",
+            },
+        },
+        {
+            $addFields: {
+                brand: {
+                    $first: "$brand",
+                },
+            },
+        },
+        {
+            $skip: pageSize * currentPage,
+        },
+        {
+            $limit: pageSize,
+        },
+        {
+            $sort: { createdAt: -1 },
+        },
+    ];
 
-    return res.status(200).json(new ApiResponse(200, { products, totalProducts: countTotalProducts }, "Products retrieved successfully"));
+    // Execute the aggregation pipeline
+    const products = await Product.aggregate(pipeline);
+
+    // Count the total number of products based on search conditions
+    const countTotalProducts = await Product.find(searchQuery).countDocuments();
+
+    // Send the response with a 200 status code and the products
+    res.status(200).json(new ApiResponse(200, { products, totalProducts: countTotalProducts }, "Products retrieved successfully"));
 });
-
 
 
 const getProductById = asyncHandler(async (req, res) => {
