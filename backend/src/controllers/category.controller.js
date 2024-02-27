@@ -1,5 +1,4 @@
 
-import mongoose from "mongoose";
 import { Category } from "../models/Category.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -36,7 +35,7 @@ const createCategory = asyncHandler(async (req, res) => {
 
 const getAllCategories = asyncHandler(async (req, res) => {
     try {
-        const categories = await Category.find({parentCategory:null});
+        const categories = await Category.find({parentCategory:null}).select("-parentCategory");
         res.status(200).json(new ApiResponse(201, categories, "Categories fetched successfully"));
     } catch (error) {
         res.status(500).json(new ApiError(500, 'Internal Server Error'));
@@ -49,7 +48,7 @@ const subCategories = asyncHandler(async (req, res) => {
     try {
         const result = await Category.aggregate([
             {
-                $match: { _id: new mongoose.Types.ObjectId(categoryId) }
+                $match: { _id: new ObjectId(categoryId) }
             },
             {
                 $lookup: {
@@ -58,6 +57,8 @@ const subCategories = asyncHandler(async (req, res) => {
             },
             {
                 $project: {
+                    name: 1,
+                    slug:1,
                     subcategories: 1
                 }
             }
@@ -69,8 +70,7 @@ const subCategories = asyncHandler(async (req, res) => {
 
         // Extract parent category and subcategories from the result
 
-        const [parentCategory] = result;
-        const { subcategories } = parentCategory;
+        const [parentCategory] = result
 
         // Include the parent category and subcategories in the response
         const response = {
@@ -90,12 +90,21 @@ const updateCategory = asyncHandler(async (req, res) => {
     const { categoryId } = req.params;
     const { name,slug, parentCategoryId } = req.body;
 
+    const categoryExist = await Category.findOne({ _id: categoryId })
+    
+    if (!categoryExist) {
+        return res.status(404).json(new ApiError(404, 'Category not found','Category not found'));
+    }
+    
     try {
         const updatedCategory = await Category.findByIdAndUpdate(
             categoryId,
             {
-                name,slug,
-                parentCategory: parentCategoryId || null
+                $set: {
+                    name,
+                    slug,
+                    parentCategory: parentCategoryId || null
+                }
             },
             { new: true }
         );
