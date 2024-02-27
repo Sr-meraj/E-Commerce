@@ -6,7 +6,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const newProduct = asyncHandler(async (req, res) => {
     try {
-        const { title, slug, sku, description, price, stock, category, subcategory, brand } = req.body;
+        const { title, slug, sku, description,shortDescription, price,discountedPrice, stock, category, subcategory, brand } = req.body;
 
         // Validation
         if (!title || !slug || !sku || !description || !price || !stock || !category) {
@@ -18,13 +18,13 @@ const newProduct = asyncHandler(async (req, res) => {
             if (!price) missingFields.push('price');
             if (!stock) missingFields.push('stock');
             if (!category) missingFields.push('category');
-            throw new ApiError(400, `Fields are required: ${missingFields.join(', ')}`);
+            return res.status(400).json(new ApiError(400, '',`Fields are required: ${missingFields.join(', ')}`));
         }
 
         // Check for existing product with the same SKU
         const exists = await Product.findOne({ sku: sku });
         if (exists) {
-            throw new ApiError(400, 'Product already exists');
+            return res.status(400).json(new ApiError(400, 'Product already exists','Product already exists'));
         }
 
         const productImagesLocalPath = req.files?.productImages;
@@ -50,7 +50,9 @@ const newProduct = asyncHandler(async (req, res) => {
             slug,
             sku,
             description,
+            shortDescription,
             price,
+            discountedPrice,
             stock,
             category,
             subcategory,
@@ -73,14 +75,20 @@ const getAllProducts = asyncHandler(async (req, res) => {
 
     const queryObj = searchParams ? {title: {$regex : searchParams , $options: "i"}} : {};
 
-    const countTotalProducts = await Product.countDocuments();
-
+    
     const products = await Product.find(queryObj)
-        .skip(pageSize * currentPage)
-        .limit(pageSize)
-        .sort('-createdAt');
+    .skip(pageSize * currentPage)
+    .limit(pageSize)
+    .sort('-createdAt');
+    
+    const countTotalProducts = await Product.find(queryObj).countDocuments();
+
 
     return res.status(200).json(new ApiResponse(200,{products, totalProducts: countTotalProducts},"Products retrieved successfully"));
 })
+
+
+
+
 export { newProduct, getAllProducts };
 

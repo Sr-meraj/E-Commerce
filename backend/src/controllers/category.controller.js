@@ -1,4 +1,5 @@
 
+import mongoose from "mongoose";
 import { Category } from "../models/Category.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -28,7 +29,7 @@ const createCategory = asyncHandler(async (req, res) => {
 
     } catch (error) {
         console.error(error); // Log the error for debugging purposes
-        res.status(500).json(new ApiError(500, 'Internal Server Error'));
+        res.status(500).json(new ApiError(500, 'Internal Server Error', 'Internal Server Error'));
     }
 });
 
@@ -48,7 +49,7 @@ const subCategories = asyncHandler(async (req, res) => {
     try {
         const result = await Category.aggregate([
             {
-                $match: { _id: new ObjectId(categoryId) }
+                $match: { _id: new mongoose.Types.ObjectId(categoryId) }
             },
             {
                 $lookup: {

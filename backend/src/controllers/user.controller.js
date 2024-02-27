@@ -312,6 +312,17 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 
 });
 
+const getAllUser = asyncHandler(async (req, res) => {
+    try {
+        const users = await User.find().select("-password -refreshToken");
+        res.status(200).json(new ApiResponse(201, users, "Users fetched successfully"));
+    } catch (error) {
+        res.status(500).json(new ApiError(500, 'Internal Server Error'));
+    }
+})
+
+
+// give user to Admin access
 
 
 export {
@@ -323,6 +334,7 @@ export {
     getCurrentUser,
     changeAccountDetails,
     updateUserAvatar,
+    getAllUser
 
 
 };

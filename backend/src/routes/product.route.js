@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { getAllProducts, newProduct } from '../controllers/product.controller.js'
-import { adminCheck, verifyJWT } from '../middleweres/auth.middlewere.js'
+import { verifyJWT } from '../middleweres/auth.middlewere.js'
 import { upload } from '../middleweres/multer.middlewere.js'
 
 const router = Router()
@@ -8,7 +8,6 @@ const router = Router()
 // secure routes
 router.route('/create').post(
     verifyJWT,
-    adminCheck,
     upload.fields([
         {
             name: "productImages",
