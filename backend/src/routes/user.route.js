@@ -8,7 +8,7 @@ import {
     registerUser,
     updateUserAvatar
 } from '../controllers/user.controller.js'
-import { verifyJWT } from '../middleweres/auth.middlewere.js'
+import { adminCheck, verifyJWT } from '../middleweres/auth.middlewere.js'
 import { upload } from '../middleweres/multer.middlewere.js'
 
 const router = Router()
@@ -32,7 +32,7 @@ router.route('/current-user').get(verifyJWT, getCurrentUser)
 router.route('/update-account').patch(verifyJWT, changeAccountDetails)
 router.route('/update-avatar').patch(verifyJWT, upload.single("avatar"), updateUserAvatar)
 
-router.route('/').get(verifyJWT, getAllUser)
+router.route('/').get(verifyJWT, adminCheck, getAllUser)
 
 
 export default router 

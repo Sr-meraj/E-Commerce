@@ -2,41 +2,25 @@
 import { Dialog, Disclosure, Menu, Transition } from '@headlessui/react'
 import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon } from '@heroicons/react/20/solid'
 import { XMarkIcon } from '@heroicons/react/24/outline'
+import axios from 'axios'
 import { Fragment, useEffect, useState } from 'react'
 import { IoIosClose } from "react-icons/io"
 import { TbSortAscending2 } from 'react-icons/tb'
 import { useLocation, useNavigate } from 'react-router-dom'
 import ListProductCard from '../../Component/ProductCard/ListProductCard'
 import ProductCard from '../../Component/ProductCard/ProductCard'
-import { kurtaPage1 } from '../../config/ProductData/Kurta/kurta'
+import SkeletonCard from '../../Component/Skeleton/SkeletonCard'
 
 const sortOptions = [
-    { name: 'Featured', href: '#', current: true },
-    { name: 'Most Popular', href: '#', current: false },
-    { name: 'Best Rating', href: '#', current: false },
     { name: 'Price: Low to High', href: '#', current: false },
     { name: 'Price: High to Low', href: '#', current: false },
 ]
 const subCategories = [
-    { name: 'Totes', href: '#' },
-    { name: 'Backpacks', href: '#' },
-    { name: 'Travel Bags', href: '#' },
-    { name: 'Hip Bags', href: '#' },
-    { name: 'Laptop Sleeves', href: '#' },
+    { name: 'Men', href: '#' },
+    { name: 'Women', href: '#' },
+    { name: 'Accessories', href: '#' },
 ]
 const filters = [
-    {
-        id: 'color',
-        name: 'Color',
-        options: [
-            { value: 'white', label: 'White', checked: false },
-            { value: 'beige', label: 'Beige', checked: false },
-            { value: 'blue', label: 'Blue', checked: false },
-            { value: 'brown', label: 'Brown', checked: false },
-            { value: 'green', label: 'Green', checked: false },
-            { value: 'purple', label: 'Purple', checked: false },
-        ],
-    },
     {
         id: 'size',
         name: 'Size',
@@ -92,6 +76,9 @@ function StorePage() {
         price: [],
         discount: [],
     });
+    const [data, setData] = useState(null)
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const searchParams = new URLSearchParams(Location.search);
@@ -152,6 +139,21 @@ function StorePage() {
         navigate({});
     };
 
+    useEffect(() => {
+        axios.get('http://localhost:4000/api/v1/products')
+            .then(res => {
+                if (res.data && res.data.data) {
+                    setLoading(false);
+                    setData(res.data.data);
+                } else {
+                    setError('Invalid data structure in the response');
+                }
+            })
+            .catch(err => {
+                setLoading(false);
+                setError(err.message || 'An error occurred while fetching data');
+            });
+    }, []);
 
     return (
         <div className="bg-white">
@@ -269,7 +271,7 @@ function StorePage() {
                 <main className="mx-auto container px-4 ">
 
                     <div className="flex items-baseline justify-end pt-8">
-                        <p className="text-md font-medium tracking-tight text-gray-900 sr-only">We found 688 items for you!</p>
+
 
                         <div className="flex items-center">
                             <Menu as="div" className="relative inline-block text-left">
@@ -343,14 +345,6 @@ function StorePage() {
                             <form className="hidden lg:block space-y-5">
                                 <div className="border border-gray-200 rounded-lg p-5 pt-4">
                                     <div>
-                                        {Location.search &&
-                                            <div className='justify-end flex'>
-                                                <button className='link link-hover link-success flex  justify-center items-center' onClick={clearFilter}>
-                                                    <IoIosClose size={20} className='mt-1' />
-                                                    Clear
-                                                </button>
-                                            </div>
-                                        }
                                         <div className="mb-5">
                                             <h3 className="footer-title capitalize">Categories</h3>
                                             <span className='block mt-2 h-[2px] bg-slate-300 after:block after:h-[3px] after:w-12 after:bg-[#088178]'></span>
@@ -495,13 +489,32 @@ function StorePage() {
                             </form>
 
                             {/* Product grid */}
-                            <div className="lg:col-span-3 space-y-12">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                                    {
-                                        kurtaPage1.slice(0, 12).map((item, id) => item ? <Fragment key={id}><ProductCard item={item} /> </Fragment> : <Fragment> <ProductCard /></Fragment>)
-                                    }
+                            <div className="lg:col-span-3 space-y-">
+                                <div className='h-16'>
+                                    <p className="text-md font-medium tracking-tight text-gray-900 ">We found {data && data.totalProducts} items for you!</p>
+
+                                    <span>
+                                        {Location.search &&
+                                            <div className='justify-start flex gap-4'>
+                                                <button className='link link-hover link-success flex text-xs justify-center items-center' onClick={clearFilter}>
+                                                    <IoIosClose size={20} className='mt-1' />
+                                                    Clear filter
+                                                </button>
+                                            </div>
+                                        }
+                                    </span>
                                 </div>
-                                <div className="">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                    {loading && (
+                                        <SkeletonCard count={9} />
+                                    )}
+                                    {!loading && !error && data && data.products.map((item, id) => (
+                                        <Fragment key={id}>
+                                            <ProductCard item={item} />
+                                        </Fragment>
+                                    ))}
+                                </div>
+                                <div className=" mt-10">
                                     <ol className="flex justify-center gap-1 text-xs font-medium">
                                         <li>
                                             <a

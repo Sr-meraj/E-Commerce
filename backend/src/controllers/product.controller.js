@@ -99,7 +99,6 @@ const getAllProducts = asyncHandler(async (req, res) => {
     const pageSize = +req.query.limit || 6;
     const currentPage = +req.query.page || 0;
     const searchParams = req.query.search;
-
     // Create a query object for search conditions
     const searchQuery = searchParams
         ? {
@@ -313,7 +312,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
     const prodId = req.params.id;
 
     try {
-        // Find the product by id from the database using findOne() method of mongoose model
+        // Find the product by id from the database
         const product = await Product.findById(prodId);
 
         // If no product is found, throw an error

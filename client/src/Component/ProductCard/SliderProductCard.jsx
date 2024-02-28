@@ -4,7 +4,7 @@ const SliderProductCard = ({ item, className }) => {
     const Title = 'Colorful Pattern Shirts'
     return (
         <>
-            <div className="card px-3 my-3 -ml-3 w-full group/card hover:-translate-y-3 transition-transform duration-300 overflow-hidden">
+            <div className="card px-4 my-3 -ml-3 w-full group/card hover:-translate-y-3 transition-transform duration-300 overflow-hidden">
                 <div className=" relative overflow-hidden ">
                     {/* product image */}
                     <figure className={cn("relative h-40 max-h-min md:h-40  overflow-hidden rounded-xl group transition-opacity duration-500 ease-in-out", className)}>
@@ -28,7 +28,7 @@ const SliderProductCard = ({ item, className }) => {
                 </div>
                 <div className="card-body pl-5 pb-5 -mt-6 items-center text-center overflow-hidden">
                     {/* product title */}
-                    <h6 className="card-title text-[14px] md:text-[16px] leading-5 font-bold">
+                    <h6 className="card-title text-[14px] leading-5 font-bold">
                         <a href={item?.title} >
                             {Title}
                         </a>

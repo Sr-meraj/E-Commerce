@@ -7,7 +7,6 @@ import Home from "../pages/home/Home";
 import OrderDetails from "../pages/OrderPage/OrderDetails";
 import ProductSingle from "../pages/ProductSinglePage/ProductSingle";
 import ShopPage from "../pages/shop/StorePage";
-import Try from "../pages/Try";
 
 const CustomerRoute = () => {
     return (
@@ -27,12 +26,9 @@ const CustomerRoute = () => {
                     <Route path="shop/*" element={<ShopPage />}>
                         <Route path=":levelOne/:levelTwo/:levelThree" element={<ShopPage />} />
                     </Route>
-                    <Route path=":product/:id" element={<ProductSingle />} />
+                    <Route path="product/:slug/details" element={<ProductSingle />} />
                     <Route path="checkout" element={<CheckOutPage />} />
                     <Route path='account/my-order' element={<OrderDetails />} />
-                </Route>
-                <Route path="/try" element={<Try />}>
-
                 </Route>
             </Routes>
         </>

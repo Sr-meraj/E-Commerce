@@ -1,9 +1,10 @@
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "../../../Component/ProductCard/ProductCard";
-import { mensPantsPage1 } from '../../../config/ProductData/pants/men_page1';
+
 const ProductSection = () => {
     const navigate = useNavigate()
+    const [products, setProducts] = useState([])
 
     return (
         <div className="">
@@ -18,7 +19,7 @@ const ProductSection = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 py-6">
                 {
-                    mensPantsPage1.slice(0, 8).map(item => <Fragment key={item.title}> <ProductCard item={item} /></Fragment>)
+                    products.map(item => <Fragment key={item._id}> <ProductCard item={item} /></Fragment>)
                 }
             </div>
         </div>

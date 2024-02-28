@@ -27,7 +27,7 @@ function Home() {
                 <BrandSection />
             </div>
 
-            <div className="grid grid-cols-4 gap-5 items-stretch py-6 md:py-10">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-y-10 gap-x-0 md:gap-y-0 md:gap-x-5 items-stretch py-6 md:py-10">
                 <article className="relative overflow-hidden rounded-lg shadow transition">
                     <img
                         alt=""
