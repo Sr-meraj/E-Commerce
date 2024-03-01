@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { truncateText } from "../../utility/truncateText";
 import { cn } from "../../utility/utility";
 import CustomRating from "../Rating/Rating";
@@ -48,10 +49,10 @@ const SliderProductCard = ({ item, className }) => {
                 </div>
                 <div className="pt-9 pb-5 -mt-6 items-center text-center overflow-hidden">
                     {/* product title */}
-                    <h6 className="card-title text-[14px] leading-5 font-bold text-balance lowercase">
-                        <a href={item?.title} className="mx-auto">
+                    <h6 className="card-title text-[14px] leading-5 font-bold text-balance">
+                        <Link to={`product/${item?.slug}/details`} className="mx-auto">
                             {truncateText(item?.title, 30, '...')}
-                        </a>
+                        </Link>
                     </h6>
                     {/* product rating */}
                     {/* <div className="rating rating-xs">
@@ -61,7 +62,7 @@ const SliderProductCard = ({ item, className }) => {
                         <input type="radio" name="rating-5" className="mask mask-star-2 bg-yellow-400" />
                         <input type="radio" name="rating-5" className="mask mask-star-2 bg-yellow-400" />
                     </div> */}
-                    <span className={`${item?.reviews?.length ? 'inline-flex' : 'hidden'} justify-center`}>
+                    <span className={`${item?.reviews.length ? 'inline-flex' : 'hidden'} justify-center`}>
                         <CustomRating />
                     </span>
                     {/* product price */}

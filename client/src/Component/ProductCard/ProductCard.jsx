@@ -52,20 +52,20 @@ export default function ProductCard({ item }) {
                     <div className="-mb-2 flex items-center gap-1 text-[#90908e] text-[14px]">
                         {item?.subcategory ? (
                             <>
-                                <a href={`/product-category/${item?.subcategory?.slug}`} className='text-[#90908e] text-[14px]'>{item.subcategory?.name}</a>
+                                <Link to={`/product-category/${item?.subcategory?.slug}`} className='text-[#90908e] text-[14px]'>{item.subcategory?.name}</Link>
                             </>
                         ) : (
                             <>
-                                <a href={`/product-category/${item?.category?.slug}`} className='text-[#90908e] text-[14px]'>{item.category?.name}</a>
+                                <Link to={`/product-category/${item?.category?.slug}`} className='text-[#90908e] text-[14px]'>{item.category?.name}</Link>
                             </>
                         )}
                     </div>
 
                     {/* product title */}
                     <h6 className="text-[16px] leading-5 sm:!leading-7 !font-bold text-gray-900 sm:card-title sm:!text-[18px] capitalize">
-                        <a href={`product/${item?.title}`}>
-                            {truncateText(item?.title, 30, '...')}
-                        </a>
+                        <Link to={`product/${item?.slug}/details`}>
+                            {truncateText(item?.title, 35, '...')}
+                        </Link>
                     </h6>
                     {/* product rating */}
                     <span className={`${item?.reviews?.length ? 'inline-flex' : 'hidden'}`}>

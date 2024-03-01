@@ -2,7 +2,6 @@
 import { Dialog, Disclosure, Menu, Transition } from '@headlessui/react'
 import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon } from '@heroicons/react/20/solid'
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import axios from 'axios'
 import { Fragment, useEffect, useState } from 'react'
 import { IoIosClose } from "react-icons/io"
 import { TbSortAscending2 } from 'react-icons/tb'
@@ -10,6 +9,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import ListProductCard from '../../Component/ProductCard/ListProductCard'
 import ProductCard from '../../Component/ProductCard/ProductCard'
 import SkeletonCard from '../../Component/Skeleton/SkeletonCard'
+import useDataFetching from '../../hook/useDataFatching'
 
 const sortOptions = [
     { name: 'Price: Low to High', href: '#', current: false },
@@ -76,9 +76,8 @@ function StorePage() {
         price: [],
         discount: [],
     });
-    const [data, setData] = useState(null)
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const apiUrl = 'http://localhost:4000/api/v1/products';
+    const { data, loading, error } = useDataFetching(apiUrl)
 
     useEffect(() => {
         const searchParams = new URLSearchParams(Location.search);
@@ -139,21 +138,6 @@ function StorePage() {
         navigate({});
     };
 
-    useEffect(() => {
-        axios.get('http://localhost:4000/api/v1/products')
-            .then(res => {
-                if (res.data && res.data.data) {
-                    setLoading(false);
-                    setData(res.data.data);
-                } else {
-                    setError('Invalid data structure in the response');
-                }
-            })
-            .catch(err => {
-                setLoading(false);
-                setError(err.message || 'An error occurred while fetching data');
-            });
-    }, []);
 
     return (
         <div className="bg-white">

@@ -5,6 +5,8 @@ import { BsArrowRepeat } from "react-icons/bs";
 import { HiMiniMinus, HiOutlinePlus } from 'react-icons/hi2';
 import { IoCardOutline } from "react-icons/io5";
 import { PiCrownSimple } from "react-icons/pi";
+import { useParams } from 'react-router-dom';
+import useDataFetching from '../../hook/useDataFatching.js';
 import DescriptionSection from './DescriptionSection';
 import ProductCarousel from './ProductCarousel';
 import RelatedProduct from './RelatedProduct';
@@ -74,7 +76,6 @@ export default function ProductSingle() {
     const [selectedSize, setSelectedSize] = useState(product.sizes[2])
     const [quantity, setQuantity] = useState(1)
 
-    console.log(selectedSize);
     const increaseQuantity = () => {
         setQuantity(prev => prev + 1)
     }
@@ -88,67 +89,40 @@ export default function ProductSingle() {
         </div>
     ));
 
+    const { slug } = useParams()
+
+    const apiUrl = `http://localhost:4000/api/v1/products/${slug}`;
+    const { data, loading, error } = useDataFetching(apiUrl)
+    console.log(data);
+    if (loading) return <p>Loading</p>
+    if (error) return <p>Something went wrong</p>
     return (
         <div className="bg-white">
-            <div className="pt-2 container mx-auto px-4">
-                <div className="bg-slate-100 mb-7 md:mb-14 px-4 sm:px-6 py-6">
-                    <nav aria-label="Breadcrumb">
-                        <ol role="list" className="mx-auto flex container items-center space-x-2 ">
-                            {product.breadcrumbs.map((breadcrumb) => (
-                                <li key={breadcrumb.id}>
-                                    <div className="flex items-center">
-                                        <a href={breadcrumb.href} className="mr-2 text-sm font-medium text-gray-900">
-                                            {breadcrumb.name}
-                                        </a>
-                                        <svg
-                                            width={16}
-                                            height={20}
-                                            viewBox="0 0 16 20"
-                                            fill="currentColor"
-                                            aria-hidden="true"
-                                            className="h-5 w-4 text-gray-300"
-                                        >
-                                            <path d="M5.697 4.34L8.98 16.532h1.327L7.025 4.341H5.697z" />
-                                        </svg>
-                                    </div>
-                                </li>
-                            ))}
-                            <li className="text-sm">
-                                <a href={product.href} aria-current="page" className="font-medium text-gray-500 hover:text-gray-600">
-                                    {product.name}
-                                </a>
-                            </li>
-                        </ol>
-                    </nav>
+            <div className="bg-slate-100">
+                <div className="container mx-auto mb-7 md:mb-14 px-4 sm:px-6 py-4">
+                    <div className="text-sm breadcrumbs">
+                        <ul>
+                            <li><a>Home</a></li>
+                            <li><a>Documents</a></li>
+                            <li>Add Document</li>
+                        </ul>
+                    </div>
                 </div>
+            </div>
+            <div className="pt-2 container mx-auto px-4">
 
                 {/* Image gallery */}
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12'>
                     {/* <!-- images - start --> */}
                     <div className="space-y-4 lg:col-span-2">
-                        {/* <div className="relative overflow-hidden rounded-lg max-h-80 bg-gray-100 md:max-h-[320px] lg:max-h-[500px] h-full">
-                            <img src={product.images[0].src} loading="lazy" alt={product.images[0].alt} className="h-full w-full object-contain object-top" />
-
-                            <span className="absolute left-0 top-0 rounded-br-lg bg-red-500 px-3 py-1.5 text-sm uppercase tracking-wider text-white sr-only">sale</span>
-                        </div> */}
                         <ProductCarousel images={transformedImages} />
-
-                        {/* <div className="flex gap-2 justify-center">
-                            {
-                                product.images.map((item, id) => (<>
-                                    <div className="overflow-hidden rounded-lg bg-gray-100 h-20 w-20 lg:w-32 lg:h-32" key={item.src}>
-                                        <img src={item.src} loading="lazy" alt={item.alt} className="h-full w-full object-cover object-center" />
-                                    </div>
-                                </>))
-                            }
-                        </div> */}
                     </div>
                     {/* <!-- images - end --> */}
 
                     {/* Product info */}
                     <div className="px-4 pb-6 lg:col-span-2 sm:px-6 lg:px-8 lg:pb-14">
                         <div className="">
-                            <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{product.name}</h1>
+                            <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{data.title}</h1>
                         </div>
 
                         {/* Options */}
@@ -184,8 +158,8 @@ export default function ProductSingle() {
                             <div className="mb-4">
                                 <h2 className="sr-only">Product information</h2>
                                 <div className="space-x-3 border-y border-gray-200 py-3 flex items-end flex-nowrap">
-                                    <span className='text-2xl sm:text-3xl font-bold text-[#088178]'>${product.price}</span>
-                                    <span className='text-lg sm:text-xl line-through text-[#90908e]'>${product?.selling_price}</span>
+                                    <span className='text-2xl sm:text-3xl font-bold text-[#088178]'>${data.price}</span>
+                                    <span className='text-lg sm:text-xl line-through text-[#90908e]'>${data?.discoutedPrice}</span>
                                 </div>
                             </div>
                             {/* Description and details */}
@@ -193,7 +167,7 @@ export default function ProductSingle() {
                                 <h3 className="sr-only">Description</h3>
 
                                 <div className="space-y-6">
-                                    <p className="text-base text-gray-900">{product.short_description}</p>
+                                    <p className="text-base text-gray-900">{data.shortDescription}</p>
                                 </div>
                             </div>
                             <div className="mt-8">
@@ -219,7 +193,7 @@ export default function ProductSingle() {
 
                             <form className="mt-10">
                                 {/* Colors */}
-                                <div className='flex items-center gap-5'>
+                                <div className='flex items-center gap-5 sr-only'>
                                     <h3 className="text-sm font-medium text-gray-900">Color</h3>
 
                                     <RadioGroup value={selectedColor} onChange={setSelectedColor} className="">
@@ -255,7 +229,7 @@ export default function ProductSingle() {
                                 </div>
 
                                 {/* Sizes */}
-                                <div className="mt-10">
+                                <div className="mt-10 sr-only">
                                     <div className="flex items-center justify-between">
                                         <h3 className="text-sm font-medium text-gray-900">Size</h3>
                                         <a href="#" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
@@ -308,43 +282,6 @@ export default function ProductSingle() {
                                                                     </svg>
                                                                 </span>
                                                             )}
-                                                        </>
-                                                    )}
-                                                </RadioGroup.Option>
-                                            ))}
-                                        </div>
-                                    </RadioGroup>
-                                </div>
-                                {/* Sizes */}
-                                <div className="mt-5 sr-only">
-                                    <div className="flex items-center justify-between">
-                                        <h3 className="text-sm font-medium text-gray-900">Size</h3>
-                                        <a href="#" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
-                                            Size guide
-                                        </a>
-                                    </div>
-
-                                    <RadioGroup value={selectedSize} onChange={setSelectedSize} className="mt-4">
-                                        <RadioGroup.Label className="sr-only">Choose a size</RadioGroup.Label>
-                                        <div className="flex justify-start items-center gap-2 md:flex-nowrap flex-wrap">
-                                            {product.sizes.map((size) => (
-                                                <RadioGroup.Option
-                                                    key={size.name}
-                                                    value={size}
-                                                    disabled={!size.inStock}
-                                                    className={({ active }) =>
-                                                        classNames(
-                                                            size.inStock
-                                                                ? 'cursor-pointer bg-white text-gray-900 shadow-sm checked:bg-success'
-                                                                : 'cursor-not-allowed bg-gray-50 text-gray-200',
-                                                            active ? 'bg-success text-white' : '',
-                                                            'group relative flex items-center justify-center rounded-md border py-2 px-5 text-sm font-medium uppercase hover:bg-success hover:text-white focus:outline-none  '
-                                                        )
-                                                    }
-                                                >
-                                                    {({ active, checked }) => (
-                                                        <>
-                                                            <RadioGroup.Label as="span">{size.name}</RadioGroup.Label>
                                                         </>
                                                     )}
                                                 </RadioGroup.Option>

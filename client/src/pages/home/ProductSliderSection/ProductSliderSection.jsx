@@ -1,11 +1,11 @@
-import axios from "axios";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment } from "react";
 import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
 import SliderProductCard from "../../../Component/ProductCard/SliderProductCard";
 import SkeletonCard from "../../../Component/Skeleton/SkeletonCard";
+import useDataFetching from "../../../hook/useDataFatching";
 
 
 function SampleNextArrow(props) {
@@ -30,24 +30,8 @@ function SamplePrevArrow(props) {
     );
 }
 const ProductSliderSection = () => {
-    const [data, setData] = useState(null)
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    useEffect(() => {
-        axios.get('http://localhost:4000/api/v1/products')
-            .then(res => {
-                if (res.data && res.data.data) {
-                    setLoading(false);
-                    setData(res.data.data);
-                } else {
-                    setError('Invalid data structure in the response');
-                }
-            })
-            .catch(err => {
-                setLoading(false);
-                setError(err.message || 'An error occurred while fetching data');
-            });
-    }, []);
+    const apiUrl = 'http://localhost:4000/api/v1/products'
+    const { data, loading, error } = useDataFetching(apiUrl)
 
 
     const settings = {

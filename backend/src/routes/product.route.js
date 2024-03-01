@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { deleteProduct, getAllProducts, getProductById, newProduct, productUpdate } from '../controllers/product.controller.js'
+import { deleteProduct, getAllProducts, getProduct, newProduct, productUpdate } from '../controllers/product.controller.js'
 import { verifyJWT } from '../middleweres/auth.middlewere.js'
 import { upload } from '../middleweres/multer.middlewere.js'
 
@@ -7,7 +7,7 @@ const router = Router()
 
 // all product get route with search query
 router.get("/", getAllProducts);
-router.get("/:id", getProductById);
+router.get("/:id", getProduct);
 
 // secure routes
 router.route('/create').post(

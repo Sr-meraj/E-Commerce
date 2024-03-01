@@ -73,7 +73,6 @@ const RelatedProduct = ({ showItem }) => {
                         [0, 1, 2, 3, 4, 5, 6].map((item) => (
                             <Fragment key={item}>
                                 <SliderProductCard className={`${showItem < 5 ? 'h-44 md:h-[280px]' : ''}`} />
-
                             </Fragment>
                         ))
                     }

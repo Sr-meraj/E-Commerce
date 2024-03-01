@@ -1,32 +1,13 @@
-import axios from 'axios';
-import { Fragment, useEffect, useState } from "react";
+import { Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "../../../Component/ProductCard/ProductCard";
 import SkeletonCard from "../../../Component/Skeleton/SkeletonCard";
+import useDataFetching from '../../../hook/useDataFatching';
 
 const ProductSection = () => {
     const navigate = useNavigate()
-    const [data, setData] = useState([])
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    // Get data from API
-    useEffect(() => {
-        axios.get('http://localhost:4000/api/v1/products')
-            .then(res => {
-                if (res.data && res.data.data) {
-                    setLoading(false);
-                    setError(null);
-                    setData(res.data.data);
-                } else {
-                    setError('Invalid data structure in the response');
-                }
-            })
-            .catch(err => {
-                setLoading(false);
-                setError(err.message || 'An error occurred while fetching data');
-            });
-    }, []);
+    const apiUrl = 'http://localhost:4000/api/v1/products'
+    const { data, loading, error } = useDataFetching(apiUrl)
 
     return (
         <div className="">

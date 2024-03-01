@@ -182,24 +182,99 @@ const getAllProducts = asyncHandler(async (req, res) => {
 });
 
 
-const getProductById = asyncHandler(async (req, res) => {
+// const getProductById = asyncHandler(async (req, res) => {
+//     try {
+//         const prodId = req.params.id;
+
+//         // Find the product by ID
+//         const product = await Product.findById(prodId);
+
+//         if (!product) {
+//             // If the product is not found, throw an ApiError with a 404 status code
+//             res.status(404).json(new ApiError(404, null, 'No product found'));
+//         }
+
+//         // Aggregate with category, subcategory and brand to include them in the response
+//         const singleProduct = await Product.aggregate([
+//             {
+//                 $match: {
+//                     _id: new mongoose.Types.ObjectId(prodId) // Convert string to ObjectId
+//                 }
+//             },
+//             {
+//                 $lookup: {
+//                     from: "categories",
+//                     localField: "category",
+//                     foreignField: "_id",
+//                     as: "category"
+//                 }
+//             },
+//             {
+//                 $addFields: {
+//                     category: {
+//                         $first: "$category"
+//                     }
+//                 }
+//             },
+//             {
+//                 $lookup: {
+//                     from: "categories",
+//                     localField: "subcategory",
+//                     foreignField: "_id",
+//                     as: "subcategory"
+//                 }
+//             },
+//             {
+//                 $addFields: {
+//                     subcategory: {
+//                         $first: "$subcategory"
+//                     }
+//                 }
+//             },
+//             {
+//                 $lookup: {
+//                     from: "brands",
+//                     localField: "brand",
+//                     foreignField: "_id",
+//                     as: "brand"
+//                 }
+//             },
+//             {
+//                 $addFields: {
+//                     brand: {
+//                         $first: "$brand"
+//                     }
+//                 }
+//             }
+//         ]
+//         );
+
+
+//         // Send the response with a 200 status code and the product
+//         res.status(200).json(new ApiResponse(200, singleProduct, 'Product fetched by id'));
+//     } catch (error) {
+//         // Handle any errors that occurred during the process
+//         res.status(error.status || 500).json(new ApiResponse(error.status || 500, null, error.message));
+//     }
+// });
+
+// product update
+
+const getProduct = asyncHandler(async (req, res) => {
     try {
-        const prodId = req.params.id;
+        let query;
 
-        // Find the product by ID
-        const product = await Product.findById(prodId);
-
-        if (!product) {
-            // If the product is not found, throw an ApiError with a 404 status code
-            res.status(404).json(new ApiError(404, null, 'No product found'));
+        if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+            // If the parameter is a valid ObjectId, search by ID
+            query = { _id: new mongoose.Types.ObjectId(req.params.id) };
+        } else {
+            // If the parameter is not a valid ObjectId, search by slug
+            query = { slug: req.params.id };
         }
 
-        // Aggregate with category, subcategory and brand to include them in the response
         const singleProduct = await Product.aggregate([
             {
-                $match: {
-                    _id: new mongoose.Types.ObjectId(prodId) // Convert string to ObjectId
-                }
+                $match: query
             },
             {
                 $lookup: {
@@ -246,19 +321,29 @@ const getProductById = asyncHandler(async (req, res) => {
                     }
                 }
             }
-        ]
-        );
+        ]);
 
+        if (!singleProduct || singleProduct.length === 0) {
+            // If the product is not found, throw an ApiError with a 404 status code
+            return res.status(404).json(new ApiError(404, null, 'No product found'));
+        }
 
+        // Use populate to replace the ObjectId references with actual document values
+        await Product.populate(singleProduct, [
+            { path: 'category', select: 'name' },
+            { path: 'subcategory', select: 'name' },
+            { path: 'brand', select: 'name' }
+        ]);
+        
         // Send the response with a 200 status code and the product
-        res.status(200).json(new ApiResponse(200, singleProduct, 'Product fetched by id'));
+        res.status(200).json(new ApiResponse(200, singleProduct[0], 'Product fetched successfully'));
     } catch (error) {
         // Handle any errors that occurred during the process
         res.status(error.status || 500).json(new ApiResponse(error.status || 500, null, error.message));
     }
 });
 
-// product update
+
 const productUpdate = asyncHandler(async (req, res) => {
     const prodId = req.params.id;
 
@@ -339,5 +424,5 @@ const deleteProduct = asyncHandler(async (req, res) => {
 });
 
 
-export { newProduct, getAllProducts, getProductById, productUpdate, deleteProduct };
+export { newProduct, getAllProducts, getProduct, productUpdate, deleteProduct };
 
