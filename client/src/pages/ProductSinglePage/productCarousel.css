@@ -1,0 +1,4 @@
+.alice-carousel__stage-item.__active.__target div {
+  width: fit-content;
+  margin: auto;
+}

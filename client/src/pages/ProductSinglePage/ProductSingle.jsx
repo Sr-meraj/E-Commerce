@@ -5,39 +5,14 @@ import { BsArrowRepeat } from "react-icons/bs";
 import { HiMiniMinus, HiOutlinePlus } from 'react-icons/hi2';
 import { IoCardOutline } from "react-icons/io5";
 import { PiCrownSimple } from "react-icons/pi";
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import useDataFetching from '../../hook/useDataFatching.js';
 import DescriptionSection from './DescriptionSection';
 import ProductCarousel from './ProductCarousel';
 import RelatedProduct from './RelatedProduct';
 
 const product = {
-    name: 'Colorful Pattern Shirts HD450',
-    price: '192',
-    selling_price: '100',
-    href: '#',
-    breadcrumbs: [
-        { id: 1, name: 'Men', href: '#' },
-        { id: 2, name: 'Clothing', href: '#' },
-    ],
-    images: [
-        {
-            src: 'https://res.cloudinary.com/dkuwlnejd/image/upload/v1707581285/Ecommerce/product-6-1_uq0s7g.jpg',
-            alt: 'Two each of gray, white, and black shirts laying flat.',
-        },
-        {
-            src: 'https://res.cloudinary.com/dkuwlnejd/image/upload/v1707581286/Ecommerce/product-6-2_u0ygxb.jpg',
-            alt: 'Model wearing plain black basic tee.',
-        },
-        {
-            src: 'https://res.cloudinary.com/dkuwlnejd/image/upload/v1707581284/Ecommerce/product-4-2_jxz1xm.jpg',
-            alt: 'Model wearing plain gray basic tee.',
-        },
-        {
-            src: 'https://res.cloudinary.com/dkuwlnejd/image/upload/v1707581284/Ecommerce/product-4-1_g7tvbq.jpg',
-            alt: 'Model wearing plain white basic tee.',
-        },
-    ],
+    name: 'lorem',
     colors: [
         { name: 'White', class: 'bg-white', selectedClass: 'ring-gray-400' },
         { name: 'Purple', class: 'bg-purple-600', selectedClass: 'ring-gray-400' },
@@ -53,17 +28,12 @@ const product = {
         { name: 'XL', inStock: true },
         { name: '2XL', inStock: true },
     ],
-    description:
-        "The Basic Tee 6-Pack is the ultimate wardrobe essential, providing you with a versatile collection of timeless tees in three captivating grayscale options. Elevate your style effortlessly with this wardrobe staple that allows you to fully express your vibrant personality. Whether you're feeling adventurous and opt for the heather gray tee, want to make a bold statement in our exclusive Black colorway, or need a classic white tee for that extra pop of color, this 6 - pack has you covered.Crafted for comfort and designed for every occasion, these tees are the perfect foundation for building your signature look.",
-    short_description: "Elevate your style with the Basic Tee 6-Pack, a versatile collection featuring three grayscale options. Choose from heather gray, exclusive Black, or classic white to express your personality effortlessly. These timeless tees are crafted for comfort and designed for every occasion, making them the ultimate wardrobe essential.",
     highlights: [
         'Hand cut and sewn locally',
         'Dyed with our proprietary colors',
         'Pre-washed & pre-shrunk',
         'Ultra-soft 100% cotton',
     ],
-    details:
-        'The 6-Pack includes two black, two white, and two heather gray Basic Tees. Sign up for our subscription service and be the first to get new, exciting colors, like our upcoming "Charcoal Gray" limited release.',
 }
 const reviews = { href: '#', average: 4, totalCount: 117 }
 
@@ -75,6 +45,9 @@ export default function ProductSingle() {
     const [selectedColor, setSelectedColor] = useState(product.colors[0])
     const [selectedSize, setSelectedSize] = useState(product.sizes[2])
     const [quantity, setQuantity] = useState(1)
+    const { slug } = useParams()
+    const apiUrl = `http://localhost:4000/api/v1/products/${slug}`;
+    const { data, loading, error } = useDataFetching(apiUrl)
 
     const increaseQuantity = () => {
         setQuantity(prev => prev + 1)
@@ -83,17 +56,14 @@ export default function ProductSingle() {
         setQuantity(prev => (quantity >= 1) && prev - 1)
     }
 
-    const transformedImages = product.images.map((image, index) => (
+    const transformedImages = data?.productImages?.map((image, index) => (
         <div key={index}>
-            <img src={image.src} alt={image.alt} />
+            <img src={image} alt={data.title} />
         </div>
     ));
 
-    const { slug } = useParams()
+    console.log(data)
 
-    const apiUrl = `http://localhost:4000/api/v1/products/${slug}`;
-    const { data, loading, error } = useDataFetching(apiUrl)
-    console.log(data);
     if (loading) return <p>Loading</p>
     if (error) return <p>Something went wrong</p>
     return (
@@ -102,9 +72,10 @@ export default function ProductSingle() {
                 <div className="container mx-auto mb-7 md:mb-14 px-4 sm:px-6 py-4">
                     <div className="text-sm breadcrumbs">
                         <ul>
-                            <li><a>Home</a></li>
-                            <li><a>Documents</a></li>
-                            <li>Add Document</li>
+                            <li><Link to='/'>Home</Link></li>
+                            <li><a>{data.category.name}</a></li>
+                            {data.subcategory && <li><a>{data.subcategory.name}</a></li>}
+                            <li>{data.title}</li>
                         </ul>
                     </div>
                 </div>
@@ -130,7 +101,7 @@ export default function ProductSingle() {
                             <h2 className="sr-only">Product information</h2>
                             <div className='flex justify-between items-center py-4'>
 
-                                <p className="text-sm tracking-tight text-gray-500">Brands: <span className='text-[#088178] font-medium'>Clothing</span></p>
+                                <p className="text-sm tracking-tight text-gray-500">Brands: <span className='text-[#088178] font-medium'>{data.brand?.name}</span></p>
 
                                 {/* Reviews */}
                                 <div className="mt-0">
@@ -158,8 +129,14 @@ export default function ProductSingle() {
                             <div className="mb-4">
                                 <h2 className="sr-only">Product information</h2>
                                 <div className="space-x-3 border-y border-gray-200 py-3 flex items-end flex-nowrap">
-                                    <span className='text-2xl sm:text-3xl font-bold text-[#088178]'>${data.price}</span>
-                                    <span className='text-lg sm:text-xl line-through text-[#90908e]'>${data?.discoutedPrice}</span>
+                                    {data?.discountedPrice ? (
+                                        <>
+                                            <span className='text-2xl sm:text-3xl font-bold text-[#088178]'>${data?.discountedPrice}</span>
+                                            <span className='text-lg sm:text-xl line-through text-[#90908e]'>${data?.price}</span>
+                                        </>
+                                    ) : (
+                                        <span className='text-2xl sm:text-3xl font-bold text-[#088178]'>${data?.price}</span>
+                                    )}
                                 </div>
                             </div>
                             {/* Description and details */}
@@ -201,7 +178,7 @@ export default function ProductSingle() {
                                         <div className="flex items-center space-x-3">
                                             {product.colors.map((color) => (
                                                 <RadioGroup.Option
-                                                    key={color.name}
+                                                    key={color?.name}
                                                     value={color}
                                                     className={({ active, checked }) =>
                                                         classNames(
@@ -213,7 +190,7 @@ export default function ProductSingle() {
                                                     }
                                                 >
                                                     <RadioGroup.Label as="span" className="sr-only">
-                                                        {color.name}
+                                                        {color?.name}
                                                     </RadioGroup.Label>
                                                     <span
                                                         aria-hidden="true"
@@ -242,7 +219,7 @@ export default function ProductSingle() {
                                         <div className="flex items-center gap-4 ">
                                             {product.sizes.map((size) => (
                                                 <RadioGroup.Option
-                                                    key={size.name}
+                                                    key={size?.name}
                                                     value={size}
                                                     disabled={!size.inStock}
                                                     className={({ active }) =>
@@ -257,7 +234,7 @@ export default function ProductSingle() {
                                                 >
                                                     {({ active, checked }) => (
                                                         <>
-                                                            <RadioGroup.Label as="span">{size.name}</RadioGroup.Label>
+                                                            <RadioGroup.Label as="span">{size?.name}</RadioGroup.Label>
                                                             {size.inStock ? (
                                                                 <span
                                                                     className={classNames(
@@ -325,11 +302,31 @@ export default function ProductSingle() {
                                     </button>
                                 </div>
                             </form>
+
+                            <div className="mt-10 border-t pt-4">
+                                <div className='flex flex-col gap-1'>
+                                    <p className="text-sm tracking-tight text-gray-500">SKU: <span className='text-[#088178] font-medium'>{data.sku}</span></p>
+                                    <p className="text-sm tracking-tight text-gray-500">
+                                        Category: <span className='text-[#088178] font-medium'>
+                                            {data.category?.name}
+                                            {data.subcategory ? `, ${data.subcategory.name}` : ''}
+                                        </span>
+                                    </p>
+
+                                    <p className="text-sm tracking-tight text-gray-500">
+                                        Availability:
+                                        <span className={`font-medium ${data.stock > 0 ? 'text-[#088178]' : 'text-red-500'}`}>
+                                            {data.stock > 0 ? ` ${data.stock} Items In Stock` : 'Out of Stock'}
+                                        </span>
+                                    </p>
+
+                                </div>
+                            </div>
                         </div>
 
                     </div>
                     <div className="py-0 pb-10 md:py-10 lg:pb-16 lg:col-span-4">
-                        <DescriptionSection data={product} />
+                        <DescriptionSection data={data} />
                     </div>
                 </div>
                 <div className=''>

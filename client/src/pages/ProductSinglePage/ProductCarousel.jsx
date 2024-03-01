@@ -2,31 +2,12 @@ import React, { useState } from 'react';
 import AliceCarousel from 'react-alice-carousel';
 import 'react-alice-carousel/lib/alice-carousel.css';
 import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri';
+import './productCarousel.css';
 
-// const items = [
-//     <div className="" data-value="1">
-//         <img src='https://res.cloudinary.com/dkuwlnejd/image/upload/v1707581285/Ecommerce/product-6-1_uq0s7g.jpg' alt="" />
-//     </div>,
-//     <div className="" data-value="2">
-//         <img src='https://res.cloudinary.com/dkuwlnejd/image/upload/v1707581286/Ecommerce/product-6-2_u0ygxb.jpg' alt="" />
-//     </div>,
-//     <div className="" data-value="3">
-//         <img src='https://res.cloudinary.com/dkuwlnejd/image/upload/v1707581284/Ecommerce/product-4-2_jxz1xm.jpg' alt="" />
-//     </div>,
-//     <div className="" data-value="4">
-//         <img src='https://res.cloudinary.com/dkuwlnejd/image/upload/v1707581284/Ecommerce/product-4-1_g7tvbq.jpg' alt="" />
-//     </div>,
-//     <div className="" data-value="5">
-//         <img src='https://res.cloudinary.com/dkuwlnejd/image/upload/v1707581284/Ecommerce/product-4-1_g7tvbq.jpg' alt="" />
-//     </div>,
-//     <div className="" data-value="5">
-//         <img src='https://res.cloudinary.com/dkuwlnejd/image/upload/v1707581284/Ecommerce/product-4-1_g7tvbq.jpg' alt="" />
-//     </div>,
-// ];
 
 const thumbItems = (items, [setThumbIndex, setThumbAnimation]) => {
     return items.map((item, i) => (
-        <div className="thumb max-w-28 md:max-w-40 w-full  px-2 -ml-3 active:border-4" onClick={() => (setThumbIndex(i), setThumbAnimation(true))}>
+        <div className="thumb max-w-28  w-full  px-2 -ml-3 active:border-4" onClick={() => (setThumbIndex(i), setThumbAnimation(true))}>
             {item}
         </div>
     ));
@@ -88,7 +69,7 @@ const ProductCarousel = ({ images }) => {
     return [
         <AliceCarousel
             activeIndex={mainIndex}
-            animationType="fadeout"
+            animationType="slide"
             animationDuration={800}
             disableDotsControls
             disableButtonsControls
@@ -101,19 +82,18 @@ const ProductCarousel = ({ images }) => {
         <div className="thumbs relative overflow-hidden">
             <div className="px-">
                 <AliceCarousel
-                    activeIndex={thumbIndex}
                     autoWidth
+                    activeIndex={thumbIndex}
                     disableDotsControls
                     disableButtonsControls
                     items={thumbs}
-                    infinite
                     mouseTracking={false}
                     onSlideChanged={syncThumbs}
                     touchTracking={!mainAnimation}
                 />
             </div>
 
-            <div className="flex justify-between items-center absolute top-8 md:top-16 right-0 w-full">
+            <div className="flex justify-between items-center absolute -translate-y-16 w-full">
                 <div className="btn-prev btn btn-circle w-8 h-8 min-h-8  bg-[#e8f6ea] hover:bg-[#088178] border-[#cce7d0] hover:text-white" onClick={slidePrev}>
                     <RiArrowLeftSLine size={20} />
                 </div>
