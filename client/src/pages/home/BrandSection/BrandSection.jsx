@@ -27,6 +27,14 @@ function SamplePrevArrow(props) {
         </button>
     );
 }
+
+const brands = [
+    { img: 'https://wp.alithemes.com/html/evara/evara-frontend/assets/imgs/banner/brand-6.png', name: "demo", _id: '1' },
+    { img: 'https://wp.alithemes.com/html/evara/evara-frontend/assets/imgs/banner/brand-1.png', name: "demo", _id: '2' },
+    { img: 'https://wp.alithemes.com/html/evara/evara-frontend/assets/imgs/banner/brand-2.png', name: "demo", _id: '3' },
+    { img: 'https://wp.alithemes.com/html/evara/evara-frontend/assets/imgs/banner/brand-3.png', name: "demo", _id: '4' },
+    { img: 'https://wp.alithemes.com/html/evara/evara-frontend/assets/imgs/banner/brand-5.png', name: "demo", _id: '5' },
+    { img: 'https://wp.alithemes.com/html/evara/evara-frontend/assets/imgs/banner/brand-4.png', name: "demo", _id: '6' },]
 const BrandSection = () => {
     const settings = {
         autoplay: true,
@@ -67,22 +75,10 @@ const BrandSection = () => {
             <h3 className="card-title "><span className="text-[#088178]">Featured</span> Brands</h3>
             <div className="slider-container py-4 md:py-6">
                 <Slider {...settings} >
-                    <BrandCard img={'https://wp.alithemes.com/html/evara/evara-frontend/assets/imgs/banner/brand-6.png'} />
-                    <BrandCard img={'https://wp.alithemes.com/html/evara/evara-frontend/assets/imgs/banner/brand-1.png'} />
-                    <BrandCard img={'https://wp.alithemes.com/html/evara/evara-frontend/assets/imgs/banner/brand-2.png'} />
-                    <BrandCard img={'https://wp.alithemes.com/html/evara/evara-frontend/assets/imgs/banner/brand-3.png'} />
-                    <BrandCard img={'https://wp.alithemes.com/html/evara/evara-frontend/assets/imgs/banner/brand-5.png'} />
-                    <BrandCard img={'https://wp.alithemes.com/html/evara/evara-frontend/assets/imgs/banner/brand-4.png'} />
+                    {brands.map((brand) => (
+                        <BrandCard brand={brand} key={`${brand.name}-${brand._id}`} />
+                    ))}
                 </Slider>
-            </div>
-
-            <div className="flex justify-center items-center gap-6 py-6 hidden">
-                <BrandCard img={'https://wp.alithemes.com/html/evara/evara-frontend/assets/imgs/banner/brand-6.png'} />
-                <BrandCard img={'https://wp.alithemes.com/html/evara/evara-frontend/assets/imgs/banner/brand-1.png'} />
-                <BrandCard img={'https://wp.alithemes.com/html/evara/evara-frontend/assets/imgs/banner/brand-2.png'} />
-                <BrandCard img={'https://wp.alithemes.com/html/evara/evara-frontend/assets/imgs/banner/brand-3.png'} />
-                <BrandCard img={'https://wp.alithemes.com/html/evara/evara-frontend/assets/imgs/banner/brand-5.png'} />
-                <BrandCard img={'https://wp.alithemes.com/html/evara/evara-frontend/assets/imgs/banner/brand-4.png'} />
             </div>
         </div>
     );

@@ -125,7 +125,7 @@ const ReviewCard = ({ name, date, msg }) => {
             <div className="flex gap-4 items-start">
                 <div className="avatar">
                     <div className="w-14 rounded-full">
-                        <img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+                        <img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" alt="title" />
                     </div>
                 </div>
                 <div className="">

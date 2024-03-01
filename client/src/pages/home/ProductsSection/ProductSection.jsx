@@ -1,10 +1,32 @@
-import { Fragment, useState } from "react";
+import axios from 'axios';
+import { Fragment, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "../../../Component/ProductCard/ProductCard";
+import SkeletonCard from "../../../Component/Skeleton/SkeletonCard";
 
 const ProductSection = () => {
     const navigate = useNavigate()
-    const [products, setProducts] = useState([])
+    const [data, setData] = useState([])
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Get data from API
+    useEffect(() => {
+        axios.get('http://localhost:4000/api/v1/products')
+            .then(res => {
+                if (res.data && res.data.data) {
+                    setLoading(false);
+                    setError(null);
+                    setData(res.data.data);
+                } else {
+                    setError('Invalid data structure in the response');
+                }
+            })
+            .catch(err => {
+                setLoading(false);
+                setError(err.message || 'An error occurred while fetching data');
+            });
+    }, []);
 
     return (
         <div className="">
@@ -18,9 +40,17 @@ const ProductSection = () => {
                 </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 py-6">
-                {
-                    products.map(item => <Fragment key={item._id}> <ProductCard item={item} /></Fragment>)
-                }
+                {loading && (
+                    <SkeletonCard count={8} />
+                )}
+                {error && (
+                    <h1>{error?.errors || error?.message || error}</h1>
+                )}
+                {!loading && !error && data && data.products.map((item, id) => (
+                    <Fragment key={id}>
+                        <ProductCard item={item} />
+                    </Fragment>
+                ))}
             </div>
         </div>
     );

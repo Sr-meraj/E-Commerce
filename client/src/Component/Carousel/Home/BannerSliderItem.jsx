@@ -10,10 +10,11 @@ const BannerSliderItem = ({ img, promoText, buttonText, offterText, heading1, he
                         <p className="py-4">{offterText}</p>
                         <button
                             onClick={actions}
-                            className="btn bg-[#e8f6ea] border hover:bg-[#088178] hover:text-white z-50">{buttonText}</button>
+                            className="btn bg-[#e8f6ea] border hover:bg-[#088178] hover:text-white z-50">{buttonText}
+                        </button>
                     </div>
 
-                    <img src={img} className="w-full col-span-5 md:col-span-3 md:-mb-24" />
+                    <img src={img} alt={heading1 || heading2} className="w-full col-span-5 md:col-span-3 md:-mb-24" />
                 </div>
             </div>
         </>

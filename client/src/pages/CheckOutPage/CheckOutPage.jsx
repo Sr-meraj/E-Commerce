@@ -84,7 +84,7 @@ const CheckOutPage = (props) => {
                                                     <div className="flex items-center gap-3">
                                                         <div className="avatar">
                                                             <div className="rounded w-20 ">
-                                                                <img src="https://res.cloudinary.com/dkuwlnejd/image/upload/v1707581286/Ecommerce/product-6-2_u0ygxb.jpg" />
+                                                                <img src="https://res.cloudinary.com/dkuwlnejd/image/upload/v1707581286/Ecommerce/product-6-2_u0ygxb.jpg" alt="product" />
                                                             </div>
                                                         </div>
                                                     </div>
