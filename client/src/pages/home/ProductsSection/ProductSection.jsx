@@ -6,7 +6,7 @@ import useDataFetching from '../../../hook/useDataFatching';
 
 const ProductSection = () => {
     const navigate = useNavigate()
-    const apiUrl = 'http://localhost:4000/api/v1/products'
+    const apiUrl = 'products?limit=8'
     const { data, loading, error } = useDataFetching(apiUrl)
 
     return (

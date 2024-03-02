@@ -221,10 +221,10 @@ export default function ProductSingle() {
                                                 <RadioGroup.Option
                                                     key={size?.name}
                                                     value={size}
-                                                    disabled={!size.inStock}
+                                                    disabled={!size.stock}
                                                     className={({ active }) =>
                                                         classNames(
-                                                            size.inStock
+                                                            size.stock
                                                                 ? 'cursor-pointer bg-white text-gray-900 shadow-sm'
                                                                 : 'cursor-not-allowed bg-gray-50 text-gray-200',
                                                             active ? 'ring-2 ring-success' : '',
@@ -235,7 +235,7 @@ export default function ProductSingle() {
                                                     {({ active, checked }) => (
                                                         <>
                                                             <RadioGroup.Label as="span">{size?.name}</RadioGroup.Label>
-                                                            {size.inStock ? (
+                                                            {size.stock ? (
                                                                 <span
                                                                     className={classNames(
                                                                         active ? 'border' : 'border-2',
@@ -268,8 +268,7 @@ export default function ProductSingle() {
                                 </div>
 
                                 <div className='flex gap-4 items-center justify-start mt-6 relative'>
-                                    {/* <label for="Quantity" className="sr-only"> Quantity </label> */}
-
+                                    <label for="Quantity" className="sr-only"> Quantity </label>
                                     <div className="flex items-center rounded border border-gray-200 dark:border-gray-800">
                                         <button
                                             onClick={decreaseQuantity}
@@ -332,6 +331,7 @@ export default function ProductSingle() {
                 <div className=''>
                     <RelatedProduct showItem={4} />
                 </div>
+
                 <div className="hidden sm:block py-9">
                     <div className="card bg-base-100 from-base-200 relative overflow-hidden bg-gradient-to-b font-sans shadow-lg  md:flex-row-reverse">
                         <figure className="max-md:bg-primary/10 isolate shrink-0 w-full">

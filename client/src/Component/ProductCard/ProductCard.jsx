@@ -44,7 +44,7 @@ export default function ProductCard({ item }) {
                     </Link>
                     {/* product badge */}
                     <div className={`absolute left-7 top-7 sm:left-5 sm:top-5 badge bg-[#088178] border-none gap-2 capitalize text-white text-[12px]`}>
-                        {item?.discountedPrice ? (<>{percentage.toFixed()}%</>) : isNewProduct() ? 'new' : 'Hot'}
+                        {item?.discountedPrice ? (<>{percentage.toFixed()}% off</>) : isNewProduct() ? 'new' : 'Hot'}
                     </div>
                 </div>
                 <div className="card-body pl-4 pb-5 -mt-6 items-start text-start">

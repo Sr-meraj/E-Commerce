@@ -76,7 +76,7 @@ function StorePage() {
         price: [],
         discount: [],
     });
-    const apiUrl = 'http://localhost:4000/api/v1/products';
+    const apiUrl = 'products?limit=9';
     const { data, loading, error } = useDataFetching(apiUrl)
 
     useEffect(() => {

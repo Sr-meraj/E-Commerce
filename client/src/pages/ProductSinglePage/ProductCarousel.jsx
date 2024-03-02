@@ -73,6 +73,7 @@ const ProductCarousel = ({ images }) => {
             animationDuration={800}
             disableDotsControls
             disableButtonsControls
+            autoHeight
             items={images}
             mouseTracking={!thumbAnimation}
             onSlideChange={syncMainBeforeChange}

@@ -30,7 +30,7 @@ function SamplePrevArrow(props) {
     );
 }
 const ProductSliderSection = () => {
-    const apiUrl = 'http://localhost:4000/api/v1/products'
+    const apiUrl = 'products?limit=15'
     const { data, loading, error } = useDataFetching(apiUrl)
 
 
