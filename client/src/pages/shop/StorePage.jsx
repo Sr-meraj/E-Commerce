@@ -76,7 +76,7 @@ function StorePage() {
         price: [],
         discount: [],
     });
-    const apiUrl = 'products?limit=9';
+    const apiUrl = `products?sort=createdAt&order=asc&limit=12`;
     const { data, loading, error } = useDataFetching(apiUrl)
 
     useEffect(() => {

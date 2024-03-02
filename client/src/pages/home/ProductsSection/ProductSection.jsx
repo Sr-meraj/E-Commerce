@@ -1,13 +1,17 @@
-import { Fragment } from "react";
+import React, { Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "../../../Component/ProductCard/ProductCard";
 import { SkeletonCard } from "../../../Component/Skeleton/SkeletonCard";
 import useDataFetching from '../../../hook/useDataFatching';
 
 const ProductSection = () => {
-    const navigate = useNavigate()
-    const apiUrl = 'products?limit=8'
-    const { data, loading, error } = useDataFetching(apiUrl)
+    const navigate = useNavigate();
+    const apiUrl = 'products?limit=8';
+    const { data, loading, error } = useDataFetching(apiUrl);
+
+    const handleViewAllClick = () => {
+        navigate('/shop');
+    };
 
     return (
         <div className="">
@@ -16,8 +20,10 @@ const ProductSection = () => {
                     <button className="btn bg-emerald-500 text-white">Featured</button>
                     <button className="btn hover:bg-[] hover:text-[#088178]">Popular</button>
                     <button className="btn">New added</button>
+                    {/* Add more buttons for additional filters if needed */}
                 </div>
-                <div className=""><button className="btn btn-link" onClick={() => navigate('/shop')}>View All</button>
+                <div className="">
+                    <button className="btn btn-link" onClick={handleViewAllClick}>View All</button>
                 </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 py-6">
@@ -35,5 +41,6 @@ const ProductSection = () => {
             </div>
         </div>
     );
-}
+};
+
 export default ProductSection;

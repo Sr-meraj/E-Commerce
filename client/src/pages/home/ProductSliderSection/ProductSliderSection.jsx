@@ -2,11 +2,12 @@ import { Fragment } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
+import SampleNextArrow from "../../../Component/CarouselButton/SampleNextArrow";
+import SamplePrevArrow from "../../../Component/CarouselButton/SamplePrevArrow";
 import SliderProductCard from "../../../Component/ProductCard/SliderProductCard";
 import { SkeletonCard } from "../../../Component/Skeleton/SkeletonCard";
 import useDataFetching from "../../../hook/useDataFatching";
-import SampleNextArrow from "./SampleNextArrow";
-import SamplePrevArrow from "./SamplePrevArrow";
+
 
 const ProductSliderSection = () => {
     const apiUrl = 'products?limit=15'

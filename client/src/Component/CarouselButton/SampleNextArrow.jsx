@@ -10,10 +10,4 @@ function SampleNextArrow(props) {
         </button>
     );
 }
-
-SampleNextArrow.propTypes = {
-    className: PropTypes.string,
-    style: PropTypes.object,
-    onClick: PropTypes.func
-};
 export default SampleNextArrow;

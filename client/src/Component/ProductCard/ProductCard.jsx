@@ -16,7 +16,7 @@ export default function ProductCard({ item }) {
 
     return (
         <>
-            <div className="card w-full group/card rounded-3xl border-[1px] hover:shadow-lg">
+            <div className="card w-full bg-white dark:bg-slate-700 group/card rounded-3xl border-[1px]  dark:border-slate-600 hover:shadow-lg">
                 <div className="px-2 pt-2 relative overflow-hidden">
                     {/* product image */}
                     <Link to={`/product/${item.slug}/details`}>
@@ -62,7 +62,7 @@ export default function ProductCard({ item }) {
                     </div>
 
                     {/* product title */}
-                    <h6 className="text-[16px] leading-5 sm:!leading-7 !font-bold text-gray-900 sm:card-title sm:!text-[18px] capitalize">
+                    <h6 className="text-[16px] leading-5 sm:!leading-7 !font-bold text-gray-900 dark:text-slate-100 sm:card-title sm:!text-[18px] capitalize">
                         <Link to={`product/${item?.slug}/details`}>
                             {truncateText(item?.title, 35, '...')}
                         </Link>
@@ -86,7 +86,7 @@ export default function ProductCard({ item }) {
 
                     {/* product action */}
                     <div className="absolute right-5 bottom-4 tooltip tooltip-success before:bg-[#088178] before:text-white before:text-[12px] after:border-t-[#088178]" data-tip="Add To Cart">
-                        <button className="btn btn-circle min-h-10 h-10 w-10 bg-[#e8f6ea] hover:bg-[#088178] border-[#cce7d0] hover:text-white">
+                        <button className="btn btn-circle min-h-10 h-10 w-10 bg-[#e8f6ea] dark:bg-slate-600  hover:bg-[#088178] border-[#cce7d0] hover:text-white">
                             <TbShoppingBagPlus size={16} />
                         </button>
                     </div>

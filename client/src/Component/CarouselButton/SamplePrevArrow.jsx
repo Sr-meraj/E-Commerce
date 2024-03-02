@@ -10,9 +10,4 @@ function SamplePrevArrow(props) {
     );
 }
 
-SamplePrevArrow.propTypes = {
-    className: PropTypes.string,
-    style: PropTypes.object,
-    onClick: PropTypes.func
-};
 export default SamplePrevArrow;
