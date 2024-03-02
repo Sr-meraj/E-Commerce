@@ -1,12 +1,15 @@
 import React, { Fragment } from 'react';
 import { FaArrowRight } from 'react-icons/fa';
 import ListProductCard from '../../../Component/ProductCard/ListProductCard';
-import SkeletonCard from '../../../Component/Skeleton/SkeletonCard';
+import { SkeletonListCard } from '../../../Component/Skeleton/SkeletonCard';
 import useDataFetching from '../../../hook/useDataFatching';
 
 export default function ProductOutlet() {
-    const apiUrl = 'products?limit=9';
-    const { data, loading, error } = useDataFetching(apiUrl)
+    const descendingUrl = 'products?limit=3';
+    const ascendingUrl = 'products?sort=createdAt&order=asc&limit=3';
+
+    const { data: descendingData, loading: descendingLoading, error: descendingError } = useDataFetching(descendingUrl);
+    const { data: ascendingData, loading: ascendingLoading, error: ascendingError } = useDataFetching(ascendingUrl);
 
     return (
         <>
@@ -35,54 +38,31 @@ export default function ProductOutlet() {
                 </article>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-3">
-                    <div className="space-y-3">
-                        <h4 className='font-medium text-lg/tight pb-5'>
-                            Deals & Outlet
-                            <span className='block mt-2 h-[1px] bg-slate-300 after:block after:h-[2px] after:w-12 after:bg-[#088178]'></span>
-                        </h4>
-                        <div className="space-y-7">
-                            {
-                                loading && (
-                                    <div>
-                                        <SkeletonCard count={3} />
-                                    </div>
-                                )
-                            }
-                            {
-                                !loading && !error && data && data.products.slice(0, 3).map((item, id) => (
-                                    <Fragment key={id}>
-                                        <ListProductCard item={item} />
-                                    </Fragment>
-                                ))
-                            }
-                        </div>
-
-                    </div>
-
-                    <div className=" space-y-3">
-                        <h4 className='font-medium text-lg/tight pb-5'>
-                            Hot Releases
-                            <span className='block mt-2 h-[1px] bg-slate-300 after:block after:h-[2px] after:w-12 after:bg-[#088178]'></span>
-                        </h4>
-                        <div className="space-y-7">
-                            {
-                                loading && (
-                                    <div>
-                                        <SkeletonCard count={3} />
-                                    </div>
-                                )
-                            }
-                            {
-                                !loading && !error && data && data.products.slice(0, 3).map((item, id) => (
-                                    <Fragment key={id}>
-                                        <ListProductCard item={item} />
-                                    </Fragment>
-                                ))
-                            }
-                        </div>
-                    </div>
+                    <ProductSection title="Deals & Outlet" loading={descendingLoading} error={descendingError} data={descendingData} />
+                    <ProductSection title="Hot Releases" loading={ascendingLoading} error={ascendingError} data={ascendingData} />
                 </div>
             </div>
         </>
     )
 }
+
+
+const ProductSection = ({ title, loading, error, data }) => (
+    <div className="space-y-3">
+        <h4 className="font-medium text-lg/tight pb-5">
+            {title}
+            <span className="block mt-2 h-[1px] bg-slate-300 after:block after:h-[2px] after:w-12 after:bg-[#088178]"></span>
+        </h4>
+        <div className="space-y-7">
+            {loading ? (
+                <SkeletonListCard count={3} />
+            ) : !error && data && data.products ? (
+                data.products.map((item, id) => (
+                    <Fragment key={id}>
+                        <ListProductCard item={item} />
+                    </Fragment>
+                ))
+            ) : null}
+        </div>
+    </div>
+);

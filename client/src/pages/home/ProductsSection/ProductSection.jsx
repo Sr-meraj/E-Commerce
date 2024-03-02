@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "../../../Component/ProductCard/ProductCard";
-import SkeletonCard from "../../../Component/Skeleton/SkeletonCard";
+import { SkeletonCard } from "../../../Component/Skeleton/SkeletonCard";
 import useDataFetching from '../../../hook/useDataFatching';
 
 const ProductSection = () => {

@@ -8,7 +8,7 @@ import { TbSortAscending2 } from 'react-icons/tb'
 import { useLocation, useNavigate } from 'react-router-dom'
 import ListProductCard from '../../Component/ProductCard/ListProductCard'
 import ProductCard from '../../Component/ProductCard/ProductCard'
-import SkeletonCard from '../../Component/Skeleton/SkeletonCard'
+import { SkeletonCard } from '../../Component/Skeleton/SkeletonCard'
 import useDataFetching from '../../hook/useDataFatching'
 
 const sortOptions = [

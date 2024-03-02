@@ -12,5 +12,20 @@ const SkeletonCard = ({ count }) => {
 
     return <>{skeletonItems}</>;
 };
+const SkeletonListCard = ({ count }) => {
+    const skeletonItems = Array.from({ length: count }, (_, index) => (
+        <div key={index} className="grid grid-cols-5 gap- w-full mb-4">
+            <div className="skeleton size-16"></div>
+            <div className="col-span-4 space-y-2">
+                <div className="skeleton h-3  w-full"></div>
+                <div className="skeleton h-3 w-2/3"></div>
+                <div className="skeleton h-3 w-2/3"></div>
+            </div>
+        </div>
+    ));
 
-export default SkeletonCard;
+    return <>{skeletonItems}</>;
+};
+
+export { SkeletonCard, SkeletonListCard };
+

@@ -3,7 +3,7 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
 import BrandCard from '../../../Component/BrandCard/BrandCard';
-import SkeletonCard from "../../../Component/Skeleton/SkeletonCard";
+import { SkeletonCard } from "../../../Component/Skeleton/SkeletonCard";
 import useDataFetching from "../../../hook/useDataFatching";
 
 
