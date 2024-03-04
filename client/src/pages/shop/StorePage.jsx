@@ -6,6 +6,7 @@ import { Fragment, useEffect, useState } from 'react'
 import { IoIosClose } from "react-icons/io"
 import { TbSortAscending2 } from 'react-icons/tb'
 import { useLocation, useNavigate } from 'react-router-dom'
+import Pagination from '../../Component/pagination/Pagination'
 import ListProductCard from '../../Component/ProductCard/ListProductCard'
 import ProductCard from '../../Component/ProductCard/ProductCard'
 import { SkeletonCard } from '../../Component/Skeleton/SkeletonCard'
@@ -71,24 +72,21 @@ function StorePage() {
     const Location = useLocation();
     const navigate = useNavigate();
     const [initialFilters, setInitialFilters] = useState({
-        color: [],
         size: [],
         price: [],
         discount: [],
     });
-    const apiUrl = `products?sort=createdAt&order=asc&limit=12`;
+    const apiUrl = `products?sort=createdAt&order=asc&limit=12&price=${initialFilters.price}`;
     const { data, loading, error } = useDataFetching(apiUrl)
 
     useEffect(() => {
         const searchParams = new URLSearchParams(Location.search);
 
-        const getColorFilters = searchParams.getAll('color');
         const getSizeFilters = searchParams.getAll('size');
         const getPriceFilters = searchParams.getAll('price');
         const getDiscountFilters = searchParams.getAll('discount');
 
         setInitialFilters({
-            color: getColorFilters,
             size: getSizeFilters,
             price: getPriceFilters,
             discount: getDiscountFilters,
@@ -129,7 +127,6 @@ function StorePage() {
         event.preventDefault();
 
         setInitialFilters({
-            color: [],
             size: [],
             price: [],
             discount: [],
@@ -331,7 +328,7 @@ function StorePage() {
                                     <div>
                                         <div className="mb-5">
                                             <h3 className="footer-title capitalize">Categories</h3>
-                                            <span className='block mt-2 h-[2px] bg-slate-300 after:block after:h-[3px] after:w-12 after:bg-[#088178]'></span>
+                                            <span className='block mt-2 h-[2px] bg-slate-300 after:block after:h-[3px] after:w-12 after:bg-main'></span>
                                         </div>
 
                                         <ul role="list" className="space-y-4  text-sm font-medium text-gray-900">
@@ -437,7 +434,7 @@ function StorePage() {
                                 <div className="border border-gray-200 rounded-lg p-5 space-y-7">
                                     <h4 className='font-medium text-lg/tight uppercase'>
                                         New Products
-                                        <span className='block mt-4 h-[1px] bg-slate-300 after:block after:h-[3px] after:w-12 after:bg-[#088178]'></span>
+                                        <span className='block mt-4 h-[1px] bg-slate-300 after:block after:h-[3px] after:w-12 after:bg-main'></span>
                                     </h4>
                                     <div className="space-y-6">
                                         <ListProductCard />
@@ -463,7 +460,7 @@ function StorePage() {
                                                         All Items</h3>
                                                 </a>
 
-                                                <a href='' className="mt-2 flex justify-start items-center gap-3 line-clamp-3 text-sm/relaxed text-[#088178]">
+                                                <a href='' className="mt-2 flex justify-start items-center gap-3 line-clamp-3 text-sm/relaxed text-main">
                                                     Shop now
                                                 </a>
                                             </div>
@@ -489,16 +486,17 @@ function StorePage() {
                                     </span>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                                    {loading && (
+                                    {loading ? (
                                         <SkeletonCard count={9} />
-                                    )}
-                                    {!loading && !error && data && data.products.map((item, id) => (
-                                        <Fragment key={id}>
-                                            <ProductCard item={item} />
-                                        </Fragment>
-                                    ))}
+                                    ) : !error ? (
+                                        data && data.products.map((item, id) => (
+                                            <Fragment key={id}>
+                                                <ProductCard item={item} />
+                                            </Fragment>
+                                        ))
+                                    ) : (<h2 className='col-span-3 text-center text-xl'>Opps!! <br />Server Error</h2>)}
                                 </div>
-                                <div className=" mt-10">
+                                {/* <div className=" mt-10">
                                     <ol className="flex justify-center gap-1 text-xs font-medium">
                                         <li>
                                             <a
@@ -573,7 +571,8 @@ function StorePage() {
                                             </a>
                                         </li>
                                     </ol>
-                                </div>
+                                </div> */}
+                                <Pagination />
                             </div>
                         </div>
                     </section>
@@ -584,3 +583,5 @@ function StorePage() {
 }
 
 export default StorePage;
+
+

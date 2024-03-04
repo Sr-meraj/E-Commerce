@@ -95,10 +95,10 @@ const ProductCarousel = ({ images }) => {
             </div>
 
             <div className="flex justify-between items-center absolute -translate-y-16 w-full">
-                <div className="btn-prev btn btn-circle w-8 h-8 min-h-8  bg-[#e8f6ea] hover:bg-[#088178] border-[#cce7d0] hover:text-white" onClick={slidePrev}>
+                <div className="btn-prev btn btn-circle w-8 h-8 min-h-8  bg-[#e8f6ea] hover:bg-main border-[#cce7d0] hover:text-white" onClick={slidePrev}>
                     <RiArrowLeftSLine size={20} />
                 </div>
-                <div className="btn-next btn btn-circle w-8 h-8 min-h-8  bg-[#e8f6ea] hover:bg-[#088178] border-[#cce7d0] hover:text-white" onClick={slideNext}>
+                <div className="btn-next btn btn-circle w-8 h-8 min-h-8  bg-[#e8f6ea] hover:bg-main border-[#cce7d0] hover:text-white" onClick={slideNext}>
                     <RiArrowRightSLine size={20} />
                 </div>
             </div>

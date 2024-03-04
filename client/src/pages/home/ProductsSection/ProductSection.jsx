@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "../../../Component/ProductCard/ProductCard";
 import { SkeletonCard } from "../../../Component/Skeleton/SkeletonCard";
@@ -6,7 +6,7 @@ import useDataFetching from '../../../hook/useDataFatching';
 
 const ProductSection = () => {
     const navigate = useNavigate();
-    const apiUrl = 'products?limit=8';
+    const apiUrl = `products?limit=8`;
     const { data, loading, error } = useDataFetching(apiUrl);
 
     const handleViewAllClick = () => {
@@ -16,12 +16,7 @@ const ProductSection = () => {
     return (
         <div className="">
             <div className="flex justify-between items-center">
-                <div className="flex items-center justify-center gap-3">
-                    <button className="btn bg-emerald-500 text-white">Featured</button>
-                    <button className="btn hover:bg-[] hover:text-[#088178]">Popular</button>
-                    <button className="btn">New added</button>
-                    {/* Add more buttons for additional filters if needed */}
-                </div>
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Featured Products</h2>
                 <div className="">
                     <button className="btn btn-link" onClick={handleViewAllClick}>View All</button>
                 </div>
@@ -34,9 +29,7 @@ const ProductSection = () => {
                     <h1>{error?.errors || error?.message || error}</h1>
                 )}
                 {!loading && !error && data && data.products.map((item, id) => (
-                    <Fragment key={id}>
-                        <ProductCard item={item} />
-                    </Fragment>
+                    <ProductCard key={id} item={item} />
                 ))}
             </div>
         </div>

@@ -60,7 +60,7 @@ const CartPage = () => {
 
                                     <div className="flex justify-end">
                                         <span
-                                            className="inline-flex items-center justify-center rounded-full bg-indigo-100 px-2.5 py-0.5 text-[#088178]"
+                                            className="inline-flex items-center justify-center rounded-full bg-indigo-100 px-2.5 py-0.5 text-main"
                                         >
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"

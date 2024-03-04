@@ -9,7 +9,7 @@ import BannerSliderItem from "./BannerSliderItem";
 function SampleNextArrow(props) {
     const { className, style, onClick } = props;
     return (
-        <button className={`btn btn-circle  bg-[#e8f6ea] hover:bg-[#088178] border-[#cce7d0] hover:text-white top-52 absolute z-20 right-0 md:-right-16 md:inline-flex hidden`}
+        <button className={`btn btn-circle  bg-[#e8f6ea] hover:bg-main border-[#cce7d0] hover:text-white top-52 absolute z-20 right-0 md:-right-16 md:inline-flex hidden`}
             onClick={onClick}
         >
             <RiArrowRightSLine size={24} />
@@ -20,7 +20,7 @@ function SampleNextArrow(props) {
 function SamplePrevArrow(props) {
     const { className, style, onClick } = props;
     return (
-        <button className={`btn btn-circle  bg-[#e8f6ea] hover:bg-[#088178] border-[#cce7d0] hover:text-white top-52 absolute z-20 left-0 md:-left-16 md:inline-flex hidden`}
+        <button className={`btn btn-circle  bg-[#e8f6ea] hover:bg-main border-[#cce7d0] hover:text-white top-52 absolute z-20 left-0 md:-left-16 md:inline-flex hidden`}
             onClick={onClick}
         >
             <RiArrowLeftSLine size={24} />

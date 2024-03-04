@@ -50,7 +50,7 @@ const BrandSection = () => {
     console.log(data);
     return (
         <div>
-            <h3 className="card-title "><span className="text-[#088178]">Featured</span> Brands</h3>
+            <h3 className="card-title "><span className="text-main">Featured</span> Brands</h3>
             <div className="slider-container py-4 md:py-6">
                 {
                     loading && (

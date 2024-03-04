@@ -56,11 +56,11 @@ const SliderProductCard = ({ item, className }) => {
                     <div className="space-x-3 mt-1">
                         {item?.discountedPrice ? (
                             <>
-                                <span className='text-[16px] font-bold text-[#088178]'>${item?.discountedPrice}</span>
+                                <span className='text-[16px] font-bold text-main'>${item?.discountedPrice}</span>
                                 <span className='text-[14px] line-through text-[#90908e]'>${item?.price}</span>
                             </>
                         ) : (
-                            <span className='text-[16px] font-bold text-[#088178]'>${item?.price}</span>
+                            <span className='text-[16px] font-bold text-main'>${item?.price}</span>
                         )}
                     </div>
 

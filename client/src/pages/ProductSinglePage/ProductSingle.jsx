@@ -101,7 +101,7 @@ export default function ProductSingle() {
                             <h2 className="sr-only">Product information</h2>
                             <div className='flex justify-between items-center py-4'>
 
-                                <p className="text-sm tracking-tight text-gray-500">Brands: <span className='text-[#088178] font-medium'>{data.brand?.name}</span></p>
+                                <p className="text-sm tracking-tight text-gray-500">Brands: <span className='text-main font-medium'>{data.brand?.name}</span></p>
 
                                 {/* Reviews */}
                                 <div className="mt-0">
@@ -131,11 +131,11 @@ export default function ProductSingle() {
                                 <div className="space-x-3 border-y border-gray-200 py-3 flex items-end flex-nowrap">
                                     {data?.discountedPrice ? (
                                         <>
-                                            <span className='text-2xl sm:text-3xl font-bold text-[#088178]'>${data?.discountedPrice}</span>
+                                            <span className='text-2xl sm:text-3xl font-bold text-main'>${data?.discountedPrice}</span>
                                             <span className='text-lg sm:text-xl line-through text-[#90908e]'>${data?.price}</span>
                                         </>
                                     ) : (
-                                        <span className='text-2xl sm:text-3xl font-bold text-[#088178]'>${data?.price}</span>
+                                        <span className='text-2xl sm:text-3xl font-bold text-main'>${data?.price}</span>
                                     )}
                                 </div>
                             </div>
@@ -304,9 +304,9 @@ export default function ProductSingle() {
 
                             <div className="mt-10 border-t pt-4">
                                 <div className='flex flex-col gap-1'>
-                                    <p className="text-sm tracking-tight text-gray-500">SKU: <span className='text-[#088178] font-medium'>{data.sku}</span></p>
+                                    <p className="text-sm tracking-tight text-gray-500">SKU: <span className='text-main font-medium'>{data.sku}</span></p>
                                     <p className="text-sm tracking-tight text-gray-500">
-                                        Category: <span className='text-[#088178] font-medium'>
+                                        Category: <span className='text-main font-medium'>
                                             {data.category?.name}
                                             {data.subcategory ? `, ${data.subcategory.name}` : ''}
                                         </span>
@@ -314,7 +314,7 @@ export default function ProductSingle() {
 
                                     <p className="text-sm tracking-tight text-gray-500">
                                         Availability:
-                                        <span className={`font-medium ${data.stock > 0 ? 'text-[#088178]' : 'text-red-500'}`}>
+                                        <span className={`font-medium ${data.stock > 0 ? 'text-main' : 'text-red-500'}`}>
                                             {data.stock > 0 ? ` ${data.stock} Items In Stock` : 'Out of Stock'}
                                         </span>
                                     </p>

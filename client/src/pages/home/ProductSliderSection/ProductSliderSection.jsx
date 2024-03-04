@@ -49,7 +49,7 @@ const ProductSliderSection = () => {
     };
     return (
         <div>
-            <h2 className="card-title "><span className="text-[#088178]">New</span> Arrivals</h2>
+            <h2 className="card-title "><span className="text-main">New</span> Arrivals</h2>
             <div className="slider-container py-4 md:py-6">
                 {
                     loading && (

@@ -6,11 +6,11 @@ const BannerSliderItem = ({ img, promoText, buttonText, offterText, heading1, he
                     <div className="col-span-5 md:col-span-2 md:pl-12 flex justify-center md:items-start items-center flex-col gap-1">
                         <h3 className="text-sm md:text-lg font-semibold">{promoText}</h3>
                         <h1 className="text-2xl md:text-5xl font-bold">{heading1}</h1>
-                        <h1 className="text-2xl md:text-5xl text-[#088178] font-bold">{heading2}</h1>
+                        <h1 className="text-2xl md:text-5xl text-main font-bold">{heading2}</h1>
                         <p className="py-4">{offterText}</p>
                         <button
                             onClick={actions}
-                            className="btn bg-[#e8f6ea] border hover:bg-[#088178] hover:text-white z-50">{buttonText}
+                            className="btn bg-[#e8f6ea] border hover:bg-main hover:text-white z-50">{buttonText}
                         </button>
                     </div>
 

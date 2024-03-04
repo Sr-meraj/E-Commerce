@@ -30,7 +30,7 @@ export default function ProductOutlet() {
                                     All Items</h3>
                             </a>
 
-                            <a href='' className="mt-2 flex justify-start items-center gap-3 line-clamp-3 text-sm/relaxed text-[#088178]">
+                            <a href='' className="mt-2 flex justify-start items-center gap-3 line-clamp-3 text-sm/relaxed text-main">
                                 Shop now <FaArrowRight />
                             </a>
                         </div>
@@ -51,7 +51,7 @@ const ProductSection = ({ title, loading, error, data }) => (
     <div className="space-y-3">
         <h4 className="font-medium text-lg/tight pb-5">
             {title}
-            <span className="block mt-2 h-[1px] bg-slate-300 after:block after:h-[2px] after:w-12 after:bg-[#088178]"></span>
+            <span className="block mt-2 h-[1px] bg-slate-300 after:block after:h-[2px] after:w-12 after:bg-main"></span>
         </h4>
         <div className="space-y-7">
             {loading ? (
