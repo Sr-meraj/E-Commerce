@@ -11,6 +11,7 @@ import ListProductCard from '../../Component/ProductCard/ListProductCard';
 import ProductCard from '../../Component/ProductCard/ProductCard';
 import { SkeletonCard, SkeletonListCard } from '../../Component/Skeleton/SkeletonCard';
 import useDataFetching from '../../hook/useDataFatching';
+import { updateFilter } from '../../utility/utility';
 
 const sortOptions = [
     { name: 'Price: Low to High', value: "asc", current: false },
@@ -69,7 +70,7 @@ function StorePage() {
         price: [],
         discount: [],
     });
-    const [itemsPerPage, setItemsPerPage] = useState(6);
+    const [itemsPerPage, setItemsPerPage] = useState(3);
     const [currentPage, setCurrentPage] = useState(0);
     const [priceSort, setPriceSort] = useState('');
     const catApiUrl = `categories`;
@@ -90,7 +91,7 @@ function StorePage() {
         setCurrentPage(page);
     };
 
-    const options = [6, 10, 15, 30];
+    const options = [3, 9, 15, 20, 30];
     const handleItemsPerPageChange = (event) => {
         setItemsPerPage(parseInt(event.target.value));
         setCurrentPage(0);
@@ -115,26 +116,10 @@ function StorePage() {
     }, [Location.search]);
 
     const handleFilter = (value, sectionId) => {
-        const searchParams = new URLSearchParams(Location.search)
-        let filterValue = searchParams.getAll(sectionId)
-
-        if (filterValue.length > 0 && filterValue[0].split(',').includes(value)) {
-
-            filterValue = filterValue[0].split(',').filter((item) => item !== value);
-
-            if (filterValue.length === 0) {
-                searchParams.delete(sectionId)
-            }
-        } else {
-            filterValue.push(value);
-        }
-
-        if (filterValue.length > 0) {
-            searchParams.set(sectionId, filterValue.join(","));
-        }
-        const query = searchParams.toString();
-        navigate({ search: `${query}` });
-    }
+        const searchParams = new URLSearchParams(Location.search);
+        const updatedQuery = updateFilter(searchParams, sectionId, value);
+        navigate({ search: updatedQuery });
+    };
 
     const handleRadioFilter = (e, sectionId) => {
         const searchParams = new URLSearchParams(Location.search);
@@ -285,7 +270,7 @@ function StorePage() {
                             <div>
                                 <select value={itemsPerPage}
                                     onChange={handleItemsPerPageChange}
-                                    className="select w-full max-w-32 rounded-full">
+                                    className="select select-bordered w-full max-w-32 rounded-full">
                                     <option selected disabled>Items</option>
                                     {options?.map((option) => (
                                         <option key={option} value={option}>
