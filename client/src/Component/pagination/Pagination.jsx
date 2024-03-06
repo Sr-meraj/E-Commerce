@@ -17,7 +17,7 @@ const Pagination = ({ totalPages, currentPage, onPageChange }) => {
     return (
         <div className="pagination-container flex justify-center gap-1 text-xs font-medium mt-10">
             <button
-                className={`inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180 ${currentPage === 0 ? 'disabled' : ''}`}
+                className={`inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white hover:bg-main hover:text-white text-gray-900 rtl:rotate-180 ${currentPage === 0 ? 'disabled:bg-slate-200 hover:text-black' : ''}`}
                 onClick={() => onPageChange(currentPage - 1)}
                 disabled={currentPage === 0}
                 aria-label="Previous Page"
@@ -38,7 +38,7 @@ const Pagination = ({ totalPages, currentPage, onPageChange }) => {
             </div>
 
             <button
-                className={`inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180 ${currentPage === totalPages - 1 ? ' disabled:bg-slate-200' : ''}`}
+                className={`inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white hover:bg-main hover:text-white text-gray-900 rtl:rotate-180 ${currentPage === totalPages - 1 ? ' disabled:bg-slate-200 hover:text-black' : ''}`}
                 onClick={() => onPageChange(currentPage + 1)}
                 disabled={currentPage === totalPages - 1}
                 aria-label="Next Page"
