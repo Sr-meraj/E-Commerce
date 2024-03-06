@@ -15,11 +15,6 @@ const sortOptions = [
     { name: 'Price: Low to High', value: "asc", current: false },
     { name: 'Price: High to Low', value: 'desc', current: false },
 ]
-const subCategories = [
-    { name: 'Men', href: '#' },
-    { name: 'Women', href: '#' },
-    { name: 'Accessories', href: '#' },
-]
 const filters = [
     {
         id: 'size',
