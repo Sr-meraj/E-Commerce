@@ -7,7 +7,6 @@ const router = Router()
 router.route('/').get(getAllCategories);
 router.route('/:categoryId/subcategories').get(subCategories);
 
-
 // secure routes
 router.route('/create').post(
     verifyJWT, adminCheck, createCategory

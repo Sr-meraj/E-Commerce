@@ -36,7 +36,8 @@ const createCategory = asyncHandler(async (req, res) => {
 
 const getAllCategories = asyncHandler(async (req, res) => {
     try {
-        const categories = await Category.find({parentCategory:null}).select("-parentCategory");
+        const categories = await Category.find({ parentCategory: null }).select("-parentCategory");
+        
         res.status(200).json(new ApiResponse(201, categories, "Categories fetched successfully"));
     } catch (error) {
         res.status(500).json(new ApiError(500, 'Internal Server Error'));

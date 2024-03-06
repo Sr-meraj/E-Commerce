@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
+import { Category } from "../models/Category.model.js";
 import { Product } from "../models/product.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 
-const newProduct = asyncHandler(async (req, res) => {
+const createProduct = asyncHandler(async (req, res) => {
     try {
         const { title, slug, sku, description,shortDescription, price,discountedPrice, stock, category, subcategory, brand } = req.body;
 
@@ -70,35 +71,12 @@ const newProduct = asyncHandler(async (req, res) => {
 
 // Get all products
 // const getAllProducts = asyncHandler(async (req, res) => {
-//     const pageSize = +req.query.limit || 6;
+//     const pageSize = +req.query.limit || 9;
 //     const currentPage = +req.query.page || 0;
 //     const searchParams = req.query.search;
+//     const sortField = req.query.sort || 'createdAt'; // Default sort field is 'createdAt'
+//     const sortOrder = req.query.order === 'asc' ? 1 : -1; // Default sort order is descending
 
-//     const queryObj = searchParams
-//         ? {
-//             $or: [
-//                 { title: { $regex: searchParams, $options: "i" } },
-//                 { sku: { $regex: searchParams, $options: "i" } },
-//                 { slug: { $regex: searchParams, $options: "i" } },
-//             ],
-//         }
-//         : {};
-    
-//     const products = await Product.find(queryObj)
-//         .skip(pageSize * currentPage)
-//         .limit(pageSize)
-//         .sort('-createdAt');
-    
-//     const countTotalProducts = await Product.find(queryObj).countDocuments();
-
-
-//     return res.status(200).json(new ApiResponse(200, { products, totalProducts: countTotalProducts }, "Products retrieved successfully"));
-// });
-
-// const getAllProducts = asyncHandler(async (req, res) => {
-//     const pageSize = +req.query.limit || 6;
-//     const currentPage = +req.query.page || 0;
-//     const searchParams = req.query.search;
 //     // Create a query object for search conditions
 //     const searchQuery = searchParams
 //         ? {
@@ -161,13 +139,13 @@ const newProduct = asyncHandler(async (req, res) => {
 //             },
 //         },
 //         {
+//             $sort: { [sortField]: sortOrder },
+//         },
+//         {
 //             $skip: pageSize * currentPage,
 //         },
 //         {
 //             $limit: pageSize,
-//         },
-//         {
-//             $sort: { createdAt: -1 },
 //         },
 //     ];
 
@@ -180,10 +158,12 @@ const newProduct = asyncHandler(async (req, res) => {
 //     // Send the response with a 200 status code and the products
 //     res.status(200).json(new ApiResponse(200, { products, totalProducts: countTotalProducts }, "Products retrieved successfully"));
 // });
+
 const getAllProducts = asyncHandler(async (req, res) => {
-    const pageSize = +req.query.limit || 6;
+    const pageSize = +req.query.limit || Number.MAX_SAFE_INTEGER;
     const currentPage = +req.query.page || 0;
     const searchParams = req.query.search;
+    const categoryId = req.query.category; 
     const sortField = req.query.sort || 'createdAt'; // Default sort field is 'createdAt'
     const sortOrder = req.query.order === 'asc' ? 1 : -1; // Default sort order is descending
 
@@ -194,14 +174,35 @@ const getAllProducts = asyncHandler(async (req, res) => {
                   { title: { $regex: searchParams, $options: "i" } },
                   { sku: { $regex: searchParams, $options: "i" } },
                   { slug: { $regex: searchParams, $options: "i" } },
+                  { category: { $regex: searchParams, $options: "i" } },
               ],
           }
         : {};
+    
+    
+    // Create a query object for filter conditions
+    const filterQuery = {};
+
+    if (categoryId) {
+        filterQuery.category = new mongoose.Types.ObjectId(categoryId);
+    }
+    console.log(filterQuery);
+    if (req.query.price) {
+        // Assuming price is provided as a range in the format min-max
+        const [min, max] = req.query.price.split('-');
+        filterQuery.price = { $gte: +min, $lte: +max };
+    }
+
+    if (req.query.discount) {
+        // Assuming discount is provided as a percentage
+        const discountPercentage = +req.query.discount;
+        filterQuery.discount = { $gte: discountPercentage };
+    }
 
     // Combine search conditions with the aggregation pipeline
     const pipeline = [
         {
-            $match: searchQuery,
+            $match: {...searchQuery, ...filterQuery, isActive: true,},
         },
         {
             $lookup: {
@@ -252,21 +253,35 @@ const getAllProducts = asyncHandler(async (req, res) => {
             $sort: { [sortField]: sortOrder },
         },
         {
-            $skip: pageSize * currentPage,
-        },
-        {
-            $limit: pageSize,
+            $facet: {
+                products: [
+                    { $skip: pageSize * currentPage },
+                    { $limit: pageSize },
+                ],
+                totalProducts: [
+                    { $count: "count" },
+                ],
+            },
         },
     ];
 
     // Execute the aggregation pipeline
-    const products = await Product.aggregate(pipeline);
+    const [result] = await Product.aggregate(pipeline);
 
-    // Count the total number of products based on search conditions
-    const countTotalProducts = await Product.find(searchQuery).countDocuments();
+    // Extract products and totalProducts from the result
+    const { products, totalProducts } = result;
+
+    // Calculate start and end indices for the displayed products
+    const productsPerPage = pageSize;
+    const startIndex = currentPage * productsPerPage + 1;
+    const endIndex = Math.min((currentPage + 1) * productsPerPage, totalProducts[0]?.count || 0);
+
+    // Construct the response message
+    const responseMessage = `Showing: ${startIndex}-${endIndex} products of ${totalProducts[0]?.count || 0} products`;
+
 
     // Send the response with a 200 status code and the products
-    res.status(200).json(new ApiResponse(200, { products, totalProducts: countTotalProducts }, "Products retrieved successfully"));
+    res.status(200).json(new ApiResponse(200, { products, totalProducts: totalProducts[0]?.count || 0, responseMessage }, "Products retrieved successfully"));
 });
 
 
@@ -452,7 +467,7 @@ const productUpdate = asyncHandler(async (req, res) => {
         await Promise.all(deletePromises);
     }
 
-    let newProductImages;
+    let createProductImages;
     // Check if "productImages" exists in req.files
     if (req.files && req.files.productImages) {
         const uploadPromises = req.files.productImages.map(async (file) => {
@@ -463,11 +478,11 @@ const productUpdate = asyncHandler(async (req, res) => {
             return result.url;
         });
 
-        newProductImages = await Promise.all(uploadPromises);
+        createProductImages = await Promise.all(uploadPromises);
     }
 
     // Update other fields in the product
-    const updatedProductData = { ...req.body, productImages: newProductImages };
+    const updatedProductData = { ...req.body, productImages: createProductImages };
 
     // Update product data excluding productImages if new images are not provided
     const updatedProduct = await Product.findByIdAndUpdate(
@@ -512,5 +527,35 @@ const deleteProduct = asyncHandler(async (req, res) => {
 });
 
 
-export { newProduct, getAllProducts, getProduct, productUpdate, deleteProduct };
+// get totalProduct number 
+const getTotalProducts = asyncHandler(async (req, res) => {
+    const productsCount = await Product.countDocuments();
+
+    // send the response with a  200 status code and data containing the count of all products in the database    
+    res.status(200).json(new ApiResponse(200, productsCount, "Number of products retrieved successfully"));
+});
+
+
+// get all products for a specific category
+const productsBasedOnCategory = asyncHandler(async (req, res) => {
+    try {
+        const categoryId = req.params.categoryId;
+
+        // Check if the category exists
+        const category = await Category.findById(categoryId);
+        if (!category) {
+            return res.status(404).json(new ApiError(404, 'Category not found'));
+        }
+
+        // Find all products for the specified category
+        const products = await Product.find({ category: categoryId });
+
+        res.status(200).json(new ApiResponse(200, products, 'Products fetched successfully for the specified category'));
+    } catch (error) {
+        console.error(error);
+        res.status(500).json(new ApiError(500, 'Internal Server Error'));
+    }
+});
+
+export { createProduct, getAllProducts, getProduct, productUpdate, deleteProduct, getTotalProducts, productsBasedOnCategory };
 

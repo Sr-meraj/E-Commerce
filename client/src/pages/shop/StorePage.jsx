@@ -63,37 +63,46 @@ const singleFiler = [
 
 
 function StorePage() {
-    const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
+    const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
     const Location = useLocation();
     const navigate = useNavigate();
+    const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+
     const [initialFilters, setInitialFilters] = useState({
         size: [],
         price: [],
         discount: [],
     });
-    const [itemsPerPage, setItemsPerPage] = useState(6); // Number of items to display per page
-    const [currentPage, setCurrentPage] = useState(0); // Current page number
+    const [itemsPerPage, setItemsPerPage] = useState(6);
+    const [currentPage, setCurrentPage] = useState(0);
     const [priceSort, setPriceSort] = useState('');
-
-    const apiUrl = `products?${priceSort && `sort=price&order=${priceSort}&`}limit=${itemsPerPage}&page=${currentPage}&price=${initialFilters.price}`;
     const catApiUrl = `categories`;
 
-    const { data: catData, loading: catLoading, error: catError } = useDataFetching(catApiUrl)
+    const { data: catData, loading: catLoading, error: catError } = useDataFetching(catApiUrl);
 
-    const { data, loading, error } = useDataFetching(apiUrl)
+    const handleToCategory = (categoryId) => {
+        setCurrentPage(0);
+        setSelectedCategoryId(categoryId)
+    };
+
+    const apiUrl = `products?${priceSort && `sort=price&order=${priceSort}&`}limit=${itemsPerPage}&page=${currentPage}&price=${initialFilters.price}${selectedCategoryId ? `&category=${selectedCategoryId}` : ''}`
+
+    const { data, loading, error } = useDataFetching(apiUrl);
     const totalPages = Math.ceil(data.totalProducts / itemsPerPage);
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
     };
-    const options = [6, 10, 15, 30]; // Define your available options
+
+    console.log(data)
+    const options = [6, 10, 15, 30];
     const handleItemsPerPageChange = (event) => {
         setItemsPerPage(parseInt(event.target.value));
-        setCurrentPage(0)
+        setCurrentPage(0);
     };
+
     const handlePriceSort = (sort) => {
         setPriceSort(sort);
-        // setCurrentPage(0)
     };
 
     useEffect(() => {
@@ -208,8 +217,8 @@ function StorePage() {
                                         <h3 className="sr-only">Categories</h3>
                                         <ul role="list" className="px-2 py-3 font-medium text-gray-900">
                                             {catData.map((category) => (
-                                                <li key={category.name}>
-                                                    <span className="block px-2 py-3 cursor-pointer">
+                                                <li key={category.name} className="block px-2 py-3 cursor-pointer" onClick={() => handleToCategory(category._id)}>
+                                                    <span>
                                                         {category.name}
                                                     </span>
                                                 </li>
@@ -332,8 +341,8 @@ function StorePage() {
 
                                         <ul role="list" className="space-y-4  text-sm font-medium text-gray-900">
                                             {catData.map((category) => (
-                                                <li key={category.name}>
-                                                    <span className="cursor-pointer">{category.name}</span>
+                                                <li key={category.name} className="cursor-pointer" onClick={() => handleToCategory(category._id)}>
+                                                    <span>{category.name}</span>
                                                 </li>
                                             ))}
                                         </ul>
