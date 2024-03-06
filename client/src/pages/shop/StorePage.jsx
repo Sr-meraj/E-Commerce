@@ -1,20 +1,19 @@
 
-import { Dialog, Disclosure, Menu, Transition } from '@headlessui/react'
-import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon } from '@heroicons/react/20/solid'
+import { Dialog, Disclosure, Transition } from '@headlessui/react'
+import { FunnelIcon, MinusIcon, PlusIcon } from '@heroicons/react/20/solid'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { Fragment, useEffect, useState } from 'react'
-import { IoIosClose } from "react-icons/io"
-import { TbSortAscending2 } from 'react-icons/tb'
+import { IoIosArrowDown, IoIosClose } from "react-icons/io"
 import { useLocation, useNavigate } from 'react-router-dom'
 import Pagination from '../../Component/pagination/Pagination'
 import ListProductCard from '../../Component/ProductCard/ListProductCard'
 import ProductCard from '../../Component/ProductCard/ProductCard'
-import { SkeletonCard } from '../../Component/Skeleton/SkeletonCard'
+import { SkeletonCard, SkeletonListCard } from '../../Component/Skeleton/SkeletonCard'
 import useDataFetching from '../../hook/useDataFatching'
 
 const sortOptions = [
-    { name: 'Price: Low to High', href: '#', current: false },
-    { name: 'Price: High to Low', href: '#', current: false },
+    { name: 'Price: Low to High', value: "asc", current: false },
+    { name: 'Price: High to Low', value: 'desc', current: false },
 ]
 const subCategories = [
     { name: 'Men', href: '#' },
@@ -63,10 +62,6 @@ const singleFiler = [
 ];
 
 
-function classNames(...classes) {
-    return classes.filter(Boolean).join(' ');
-}
-
 function StorePage() {
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
     const Location = useLocation();
@@ -76,8 +71,30 @@ function StorePage() {
         price: [],
         discount: [],
     });
-    const apiUrl = `products?sort=createdAt&order=asc&limit=12&price=${initialFilters.price}`;
+    const [itemsPerPage, setItemsPerPage] = useState(6); // Number of items to display per page
+    const [currentPage, setCurrentPage] = useState(0); // Current page number
+    const [priceSort, setPriceSort] = useState('');
+
+    const apiUrl = `products?${priceSort && `sort=price&order=${priceSort}&`}limit=${itemsPerPage}&page=${currentPage}&price=${initialFilters.price}`;
+    const catApiUrl = `categories`;
+
+    const { data: catData, loading: catLoading, error: catError } = useDataFetching(catApiUrl)
+
     const { data, loading, error } = useDataFetching(apiUrl)
+    const totalPages = Math.ceil(data.totalProducts / itemsPerPage);
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+    const options = [6, 10, 15, 30]; // Define your available options
+    const handleItemsPerPageChange = (event) => {
+        setItemsPerPage(parseInt(event.target.value));
+        setCurrentPage(0)
+    };
+    const handlePriceSort = (sort) => {
+        setPriceSort(sort);
+        // setCurrentPage(0)
+    };
 
     useEffect(() => {
         const searchParams = new URLSearchParams(Location.search);
@@ -190,11 +207,11 @@ function StorePage() {
                                     <form className="mt-4 border-t border-gray-200">
                                         <h3 className="sr-only">Categories</h3>
                                         <ul role="list" className="px-2 py-3 font-medium text-gray-900">
-                                            {subCategories.map((category) => (
+                                            {catData.map((category) => (
                                                 <li key={category.name}>
-                                                    <a href={category.href} className="block px-2 py-3">
+                                                    <span className="block px-2 py-3 cursor-pointer">
                                                         {category.name}
-                                                    </a>
+                                                    </span>
                                                 </li>
                                             ))}
                                         </ul>
@@ -254,56 +271,38 @@ function StorePage() {
                     <div className="flex items-baseline justify-end pt-8">
 
 
-                        <div className="flex items-center">
-                            <Menu as="div" className="relative inline-block text-left">
-                                <div>
+                        <div className="flex items-center gap-4">
 
-                                    <Menu.Button className="group inline-flex justify-between text-sm font-medium text-gray-400 hover:text-gray-900 border rounded-full px-4 py-2 gap-2">
+                            <div>
+                                <select value={itemsPerPage}
+                                    onChange={handleItemsPerPageChange}
+                                    className="select w-full max-w-32 rounded-full">
+                                    <option selected disabled>Items</option>
+                                    {options.map((option) => (
+                                        <option key={option} value={option}>
+                                            {option} items
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
 
-                                        <button type="button" className="-m-2 p-2.5 text-gray-400 group-hover:text-gray-500">
-                                            <TbSortAscending2 className="h-4 w-4" aria-hidden="true" />
-                                        </button>
-
-                                        Sort
-
-                                        <ChevronDownIcon
+                            <div>
+                                <div className="dropdown dropdown-hover  dropdown-end rounded-full">
+                                    <div tabIndex={0} role="button" className="btn m-1">Sort
+                                        <IoIosArrowDown
                                             className="-mr-1 ml-1 h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
                                             aria-hidden="true"
                                         />
-                                    </Menu.Button>
+                                    </div>
+                                    <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                                        {sortOptions.map((option) => (
+                                            <li key={option.name}>
+                                                <span onClick={() => handlePriceSort(option.value)}>{option.name}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
                                 </div>
-
-                                <Transition
-                                    as={Fragment}
-                                    enter="transition ease-out duration-100"
-                                    enterFrom="transform opacity-0 scale-95"
-                                    enterTo="transform opacity-100 scale-100"
-                                    leave="transition ease-in duration-75"
-                                    leaveFrom="transform opacity-100 scale-100"
-                                    leaveTo="transform opacity-0 scale-95"
-                                >
-                                    <Menu.Items className="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                        <div className="py-1">
-                                            {sortOptions.map((option) => (
-                                                <Menu.Item key={option.name}>
-                                                    {({ active }) => (
-                                                        <a
-                                                            href={option.href}
-                                                            className={classNames(
-                                                                option.current ? 'font-medium text-gray-900' : 'text-gray-500',
-                                                                active ? 'bg-gray-100' : '',
-                                                                'block px-4 py-2 text-sm'
-                                                            )}
-                                                        >
-                                                            {option.name}
-                                                        </a>
-                                                    )}
-                                                </Menu.Item>
-                                            ))}
-                                        </div>
-                                    </Menu.Items>
-                                </Transition>
-                            </Menu>
+                            </div>
 
                             <button
                                 type="button"
@@ -332,9 +331,9 @@ function StorePage() {
                                         </div>
 
                                         <ul role="list" className="space-y-4  text-sm font-medium text-gray-900">
-                                            {subCategories.map((category) => (
+                                            {catData.map((category) => (
                                                 <li key={category.name}>
-                                                    <a href={category.href}>{category.name}</a>
+                                                    <span className="cursor-pointer">{category.name}</span>
                                                 </li>
                                             ))}
                                         </ul>
@@ -437,9 +436,15 @@ function StorePage() {
                                         <span className='block mt-4 h-[1px] bg-slate-300 after:block after:h-[3px] after:w-12 after:bg-main'></span>
                                     </h4>
                                     <div className="space-y-6">
-                                        <ListProductCard />
-                                        <ListProductCard />
-                                        <ListProductCard />
+                                        {loading ? (
+                                            <SkeletonListCard count={3} />
+                                        ) : !error ? (
+                                            data && data.products.slice(0, 3).map((item, id) => (
+                                                <Fragment key={id}>
+                                                    <ListProductCard item={item} />
+                                                </Fragment>
+                                            ))
+                                        ) : (<h2 className='col-span-3 text-center text-xl'>Opps!! <br />Server Error</h2>)}
                                     </div>
                                 </div>
 
@@ -472,8 +477,7 @@ function StorePage() {
                             {/* Product grid */}
                             <div className="lg:col-span-3 space-y-">
                                 <div className='h-16'>
-                                    <p className="text-md font-medium tracking-tight text-gray-900 ">We found {data && data.totalProducts} items for you!</p>
-
+                                    <p className="text-md font-medium tracking-tight text-gray-900 ">{data?.responseMessage}</p>
                                     <span>
                                         {Location.search &&
                                             <div className='justify-start flex gap-4'>
@@ -572,7 +576,7 @@ function StorePage() {
                                         </li>
                                     </ol>
                                 </div> */}
-                                <Pagination />
+                                <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
                             </div>
                         </div>
                     </section>

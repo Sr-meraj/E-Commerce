@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import CustomerRoute from './route/CustomerRoute';
 function App() {
@@ -7,9 +8,11 @@ function App() {
   return (
     <>
       <BrowserRouter>
-        <Routes>
-          <Route path='/*' element={<CustomerRoute />} />
-        </Routes>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Routes>
+            <Route path="/*" element={<CustomerRoute />} />
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </>
   )

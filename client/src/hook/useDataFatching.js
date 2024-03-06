@@ -16,6 +16,7 @@ const useDataFetching = (url) => {
       try {
         const response = await axiosInstance.get(url);
         if (response.data && response.data.data) {
+          setLoading(true);
           setData(response.data.data);
           setLoading(false);
           setError(null);

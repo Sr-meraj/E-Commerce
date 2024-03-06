@@ -9,7 +9,7 @@ const ListProductCard = ({ item }) => {
                 />
 
                 <div>
-                    <h3 className="text-sm/tight text-gray-900 dark:text-slate-100 font-semibold">
+                    <h3 className="text-sm/tight text-gray-900  font-semibold">
                         <a href="">
                             {item?.title}
                         </a>

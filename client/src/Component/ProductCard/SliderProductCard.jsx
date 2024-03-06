@@ -4,7 +4,7 @@ import { cn } from "../../utility/utility";
 import CustomRating from "../Rating/Rating";
 
 const SliderProductCard = ({ item, className }) => {
-    const isNewProduct = () => {
+    const iscreateProduct = () => {
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
         const creationDate = new Date(item?.createdAt);
@@ -38,7 +38,7 @@ const SliderProductCard = ({ item, className }) => {
                     </figure>
                     {/* product badge */}
                     <div className={`absolute left-2 top-2 badge badge-success gap-2 capitalize text-white md:text-[10px] h-4 md:h-fit`}>
-                        {item?.discountedPrice ? (<>{percentage.toFixed()}%</>) : isNewProduct() ? 'new' : 'Hot'}
+                        {item?.discountedPrice ? (<>{percentage.toFixed()}%</>) : iscreateProduct() ? 'new' : 'Hot'}
                     </div>
                 </div>
                 <div className="pt-9 pb-5 -mt-6 items-center text-center overflow-hidden">

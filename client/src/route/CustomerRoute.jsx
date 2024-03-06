@@ -13,22 +13,36 @@ const CustomerRoute = () => {
         <>
             {/* Navigation component should be part of the Route content */}
             <Routes>
-                <Route path="/*"
+                <Route
+                    path="/*"
                     element={
                         <div>
                             <Navigation />
                             <Outlet />
                             <Footer />
                         </div>
-                    }>
+                    }
+                >
                     <Route index element={<Home />} />
                     <Route path="cart" element={<CartPage />} />
-                    <Route path="shop/*" element={<ShopPage />}>
-                        <Route path=":levelOne/:levelTwo/:levelThree" element={<ShopPage />} />
+                    <Route
+                        path="shop/*"
+                        element={<ShopPage />}
+                    >
+                        <Route
+                            path=":levelOne/:levelTwo/:levelThree"
+                            element={<ShopPage />}
+                        />
                     </Route>
-                    <Route path="product/:slug/details" element={<ProductSingle />} />
+                    <Route
+                        path="product/:slug/details"
+                        element={<ProductSingle />}
+                    />
                     <Route path="checkout" element={<CheckOutPage />} />
-                    <Route path='account/my-order' element={<OrderDetails />} />
+                    <Route
+                        path="account/my-order"
+                        element={<OrderDetails />}
+                    />
                 </Route>
             </Routes>
         </>

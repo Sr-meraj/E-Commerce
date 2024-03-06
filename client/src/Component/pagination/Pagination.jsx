@@ -1,3 +1,6 @@
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { cn } from "../../utility/utility";
+
 import React, { useEffect, useState } from 'react';
 
 const Pagination = ({ totalPages, currentPage, onPageChange }) => {
@@ -5,7 +8,7 @@ const Pagination = ({ totalPages, currentPage, onPageChange }) => {
 
     useEffect(() => {
         // Create an array of page numbers
-        const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1);
+        const pageNumbers = Array.from({ length: totalPages }, (_, index) => index);
         setPages(pageNumbers);
     }, [totalPages]);
 
@@ -14,33 +17,33 @@ const Pagination = ({ totalPages, currentPage, onPageChange }) => {
     return (
         <div className="pagination-container flex justify-center gap-1 text-xs font-medium mt-10">
             <button
-                className={`inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180 ${currentPage === 1 ? 'disabled' : ''}`}
+                className={`inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180 ${currentPage === 0 ? 'disabled' : ''}`}
                 onClick={() => onPageChange(currentPage - 1)}
-                disabled={currentPage === 1}
+                disabled={currentPage === 0}
                 aria-label="Previous Page"
             >
-                &laquo;
+                <IoIosArrowBack />
             </button>
 
             <div className="pagination space-x-2">
                 {pages.map((page) => (
                     <button
                         key={page}
-                        className={`inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180 hover:bg-main hover:text-white ${page === currentPage ? 'bg-main text-white' : ''}`}
+                        className={cn(`inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180 hover:bg-main hover:text-white`, `${page === currentPage ? 'bg-main text-white' : ''}`)}
                         onClick={() => onPageChange(page)}
                     >
-                        {page}
+                        {page + 1}
                     </button>
                 ))}
             </div>
 
             <button
-                className={`inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180 ${currentPage === totalPages ? 'disabled' : ''}`}
+                className={`inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180 ${currentPage === totalPages - 1 ? ' disabled:bg-slate-200' : ''}`}
                 onClick={() => onPageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
+                disabled={currentPage === totalPages - 1}
                 aria-label="Next Page"
             >
-                &raquo;
+                <IoIosArrowForward />
             </button>
         </div>
     );
