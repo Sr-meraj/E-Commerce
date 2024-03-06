@@ -14,24 +14,26 @@ const useDataFetching = (url) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        
+        setLoading(true);
+        // Introduce a 1.2 seconds (1200 milliseconds) loading delay
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         const response = await axiosInstance.get(url);
         if (response.data && response.data.data) {
-          setLoading(true);
           setData(response.data.data);
-          setLoading(false);
           setError(null);
         } else {
           setError('Invalid data structure in the response');
         }
       } catch (err) {
-        setLoading(false);
         setError(err.message || 'An error occurred while fetching data');
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
-    console.log('api rendering');
-  }, [url]); // Only run effect once on mount
+  }, [url]);
 
   return { data, loading, error };
 };

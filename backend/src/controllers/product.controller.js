@@ -71,9 +71,10 @@ const createProduct = asyncHandler(async (req, res) => {
 
 // Get all products
 // const getAllProducts = asyncHandler(async (req, res) => {
-//     const pageSize = +req.query.limit || 9;
+//     const pageSize = +req.query.limit || Number.MAX_SAFE_INTEGER;
 //     const currentPage = +req.query.page || 0;
 //     const searchParams = req.query.search;
+//     const categoryId = req.query.category; 
 //     const sortField = req.query.sort || 'createdAt'; // Default sort field is 'createdAt'
 //     const sortOrder = req.query.order === 'asc' ? 1 : -1; // Default sort order is descending
 
@@ -84,14 +85,34 @@ const createProduct = asyncHandler(async (req, res) => {
 //                   { title: { $regex: searchParams, $options: "i" } },
 //                   { sku: { $regex: searchParams, $options: "i" } },
 //                   { slug: { $regex: searchParams, $options: "i" } },
+//                   { category: { $regex: searchParams, $options: "i" } },
 //               ],
 //           }
 //         : {};
+    
+    
+//     // Create a query object for filter conditions
+//     const filterQuery = {};
+
+//     if (categoryId) {
+//         filterQuery.category = new mongoose.Types.ObjectId(categoryId);
+//     }
+//     if (req.query.price) {
+//         // Assuming price is provided as a range in the format min-max
+//         const [min, max] = req.query.price.split('-');
+//         filterQuery.price = { $gte: +min, $lte: +max };
+//     }
+
+//     if (req.query.discount) {
+//         // Assuming discount is provided as a percentage
+//         const discountPercentage = +req.query.discount;
+//         filterQuery.discount = { $gte: discountPercentage };
+//     }
 
 //     // Combine search conditions with the aggregation pipeline
 //     const pipeline = [
 //         {
-//             $match: searchQuery,
+//             $match: {...searchQuery, ...filterQuery, isActive: true,},
 //         },
 //         {
 //             $lookup: {
@@ -142,33 +163,60 @@ const createProduct = asyncHandler(async (req, res) => {
 //             $sort: { [sortField]: sortOrder },
 //         },
 //         {
-//             $skip: pageSize * currentPage,
-//         },
-//         {
-//             $limit: pageSize,
+//             $facet: {
+//                 products: [
+//                     { $skip: pageSize * currentPage },
+//                     { $limit: pageSize },
+//                 ],
+//                 totalProducts: [
+//                     { $count: "count" },
+//                 ],
+//             },
 //         },
 //     ];
 
 //     // Execute the aggregation pipeline
-//     const products = await Product.aggregate(pipeline);
+//     const [result] = await Product.aggregate(pipeline);
 
-//     // Count the total number of products based on search conditions
-//     const countTotalProducts = await Product.find(searchQuery).countDocuments();
+//     // Extract products and totalProducts from the result
+//     const { products, totalProducts } = result;
+
+//     // Calculate start and end indices for the displayed products
+//     const productsPerPage = pageSize;
+//     const startIndex = currentPage * productsPerPage + 1;
+//     const endIndex = Math.min((currentPage + 1) * productsPerPage, totalProducts[0]?.count || 0);
+
+//     // Construct the response message
+//     const responseMessage = `Showing: ${startIndex}-${endIndex} products of ${totalProducts[0]?.count || 0} products`;
+
 
 //     // Send the response with a 200 status code and the products
-//     res.status(200).json(new ApiResponse(200, { products, totalProducts: countTotalProducts }, "Products retrieved successfully"));
+//     res.status(200).json(new ApiResponse(200, { products, totalProducts: totalProducts[0]?.count || 0, responseMessage }, "Products retrieved successfully"));
 // });
 
 const getAllProducts = asyncHandler(async (req, res) => {
     const pageSize = +req.query.limit || Number.MAX_SAFE_INTEGER;
     const currentPage = +req.query.page || 0;
     const searchParams = req.query.search;
-    const categoryId = req.query.category; 
-    const sortField = req.query.sort || 'createdAt'; // Default sort field is 'createdAt'
-    const sortOrder = req.query.order === 'asc' ? 1 : -1; // Default sort order is descending
+    const categoryId = req.query.category;
+    const sortField = req.query.sort || 'createdAt';
+    const sortOrder = req.query.order === 'asc' ? 1 : -1;
 
-    // Create a query object for search conditions
-    const searchQuery = searchParams
+    const searchQuery = createSearchQuery(searchParams);
+    const filterQuery = createFilterQuery(categoryId, req.query.price, req.query.discount);
+
+    const pipeline = buildAggregationPipeline(searchQuery, filterQuery, sortField, sortOrder, pageSize, currentPage);
+
+    const [result] = await Product.aggregate(pipeline);
+
+    const { products, totalProducts } = result;
+    const { startIndex, endIndex, responseMessage } = calculateIndicesAndMessage(currentPage, pageSize, totalProducts);
+
+    res.status(200).json(new ApiResponse(200, { products, totalProducts: totalProducts[0]?.count || 0, responseMessage }, "Products retrieved successfully"));
+});
+
+function createSearchQuery(searchParams) {
+    return searchParams
         ? {
               $or: [
                   { title: { $regex: searchParams, $options: "i" } },
@@ -178,31 +226,34 @@ const getAllProducts = asyncHandler(async (req, res) => {
               ],
           }
         : {};
-    
-    
-    // Create a query object for filter conditions
+}
+
+
+function createFilterQuery(categoryId, price, discount) {
     const filterQuery = {};
 
     if (categoryId) {
         filterQuery.category = new mongoose.Types.ObjectId(categoryId);
     }
-    console.log(filterQuery);
-    if (req.query.price) {
-        // Assuming price is provided as a range in the format min-max
-        const [min, max] = req.query.price.split('-');
+
+    if (price) {
+        const [min, max] = price.split('-');
         filterQuery.price = { $gte: +min, $lte: +max };
     }
 
-    if (req.query.discount) {
-        // Assuming discount is provided as a percentage
-        const discountPercentage = +req.query.discount;
+    if (discount) {
+        const discountPercentage = +discount;
         filterQuery.discount = { $gte: discountPercentage };
     }
 
-    // Combine search conditions with the aggregation pipeline
-    const pipeline = [
+    return filterQuery;
+}
+
+
+function buildAggregationPipeline(searchQuery, filterQuery, sortField, sortOrder, pageSize, currentPage) {
+    return [
         {
-            $match: {...searchQuery, ...filterQuery, isActive: true,},
+            $match: { ...searchQuery, ...filterQuery, isActive: true, },
         },
         {
             $lookup: {
@@ -264,25 +315,16 @@ const getAllProducts = asyncHandler(async (req, res) => {
             },
         },
     ];
+}
 
-    // Execute the aggregation pipeline
-    const [result] = await Product.aggregate(pipeline);
-
-    // Extract products and totalProducts from the result
-    const { products, totalProducts } = result;
-
-    // Calculate start and end indices for the displayed products
+function calculateIndicesAndMessage(currentPage, pageSize, totalProducts) {
     const productsPerPage = pageSize;
     const startIndex = currentPage * productsPerPage + 1;
     const endIndex = Math.min((currentPage + 1) * productsPerPage, totalProducts[0]?.count || 0);
-
-    // Construct the response message
     const responseMessage = `Showing: ${startIndex}-${endIndex} products of ${totalProducts[0]?.count || 0} products`;
 
-
-    // Send the response with a 200 status code and the products
-    res.status(200).json(new ApiResponse(200, { products, totalProducts: totalProducts[0]?.count || 0, responseMessage }, "Products retrieved successfully"));
-});
+    return { startIndex, endIndex, responseMessage };
+}
 
 
 // const getProductById = asyncHandler(async (req, res) => {

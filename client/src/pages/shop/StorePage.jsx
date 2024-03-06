@@ -94,7 +94,6 @@ function StorePage() {
         setCurrentPage(page);
     };
 
-    console.log(data)
     const options = [6, 10, 15, 30];
     const handleItemsPerPageChange = (event) => {
         setItemsPerPage(parseInt(event.target.value));
@@ -216,7 +215,12 @@ function StorePage() {
                                     <form className="mt-4 border-t border-gray-200">
                                         <h3 className="sr-only">Categories</h3>
                                         <ul role="list" className="px-2 py-3 font-medium text-gray-900">
-                                            {catData.map((category) => (
+                                            <li className="block px-2 py-3 cursor-pointer" onClick={() => handleToCategory('')}>
+                                                <span>
+                                                    All
+                                                </span>
+                                            </li>
+                                            {catData?.map((category) => (
                                                 <li key={category.name} className="block px-2 py-3 cursor-pointer" onClick={() => handleToCategory(category._id)}>
                                                     <span>
                                                         {category.name}
@@ -225,7 +229,7 @@ function StorePage() {
                                             ))}
                                         </ul>
 
-                                        {filters.map((section) => (
+                                        {filters?.map((section) => (
                                             <Disclosure as="div" key={section.id} className="border-t border-gray-200 px-4 py-6">
                                                 {({ open }) => (
                                                     <>
@@ -243,7 +247,7 @@ function StorePage() {
                                                         </h3>
                                                         <Disclosure.Panel className="pt-6">
                                                             <div className="space-y-6">
-                                                                {section.options.map((option, optionIdx) => (
+                                                                {section.options?.map((option, optionIdx) => (
                                                                     <div key={option.value} className="flex items-center">
                                                                         <input
                                                                             onChange={() => handleFilter(option.value, section.id)}
@@ -287,7 +291,7 @@ function StorePage() {
                                     onChange={handleItemsPerPageChange}
                                     className="select w-full max-w-32 rounded-full">
                                     <option selected disabled>Items</option>
-                                    {options.map((option) => (
+                                    {options?.map((option) => (
                                         <option key={option} value={option}>
                                             {option} items
                                         </option>
@@ -304,7 +308,7 @@ function StorePage() {
                                         />
                                     </div>
                                     <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                                        {sortOptions.map((option) => (
+                                        {sortOptions?.map((option) => (
                                             <li key={option.name}>
                                                 <span onClick={() => handlePriceSort(option.value)}>{option.name}</span>
                                             </li>
@@ -340,7 +344,12 @@ function StorePage() {
                                         </div>
 
                                         <ul role="list" className="space-y-4  text-sm font-medium text-gray-900">
-                                            {catData.map((category) => (
+                                            <li className="block cursor-pointer" onClick={() => handleToCategory('')}>
+                                                <span>
+                                                    All
+                                                </span>
+                                            </li>
+                                            {catData?.map((category) => (
                                                 <li key={category.name} className="cursor-pointer" onClick={() => handleToCategory(category._id)}>
                                                     <span>{category.name}</span>
                                                 </li>
@@ -351,7 +360,7 @@ function StorePage() {
                                 </div>
                                 <div className="border border-gray-200 rounded-lg px-5 pb-5">
 
-                                    {filters.map((section) => (
+                                    {filters?.map((section) => (
                                         <Disclosure as="div" key={section.id} className="border-b border-gray-200 py-6">
                                             {({ open }) => (
                                                 <>
@@ -369,7 +378,7 @@ function StorePage() {
                                                     </h3>
                                                     <Disclosure.Panel className="pt-6">
                                                         <div className="space-y-4">
-                                                            {section.options.map((option, optionIdx) => (
+                                                            {section.options?.map((option, optionIdx) => (
                                                                 <div key={option.value} className="flex items-center">
                                                                     <input
                                                                         onChange={() => handleFilter(option.value, section.id)}
@@ -394,7 +403,7 @@ function StorePage() {
                                             )}
                                         </Disclosure>
                                     ))}
-                                    {singleFiler.map((section) => (
+                                    {singleFiler?.map((section) => (
                                         <Disclosure as="div" key={section.id} className="last:border-0 border-b border-gray-200 py-6">
                                             {({ open }) => (
                                                 <>
@@ -412,7 +421,7 @@ function StorePage() {
                                                     </h3>
                                                     <Disclosure.Panel className="pt-6">
                                                         <div className="space-y-4">
-                                                            {section.options.map((option, optionIdx) => (
+                                                            {section.options?.map((option, optionIdx) => (
                                                                 <div key={option.value} className="flex items-center">
                                                                     <input
                                                                         onChange={(e) => handleRadioFilter(e, section.id)}
@@ -448,7 +457,7 @@ function StorePage() {
                                         {loading ? (
                                             <SkeletonListCard count={3} />
                                         ) : !error ? (
-                                            data && data.products.slice(0, 3).map((item, id) => (
+                                            data && data?.products?.slice(0, 3)?.map((item, id) => (
                                                 <Fragment key={id}>
                                                     <ListProductCard item={item} />
                                                 </Fragment>
@@ -502,7 +511,7 @@ function StorePage() {
                                     {loading ? (
                                         <SkeletonCard count={9} />
                                     ) : !error ? (
-                                        data && data.products.map((item, id) => (
+                                        data && data.products?.map((item, id) => (
                                             <Fragment key={id}>
                                                 <ProductCard item={item} />
                                             </Fragment>
