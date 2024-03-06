@@ -1,15 +1,16 @@
 
-import { Dialog, Disclosure, Transition } from '@headlessui/react'
-import { FunnelIcon, MinusIcon, PlusIcon } from '@heroicons/react/20/solid'
-import { XMarkIcon } from '@heroicons/react/24/outline'
-import { Fragment, useEffect, useState } from 'react'
-import { IoIosArrowDown, IoIosClose } from "react-icons/io"
-import { useLocation, useNavigate } from 'react-router-dom'
-import Pagination from '../../Component/pagination/Pagination'
-import ListProductCard from '../../Component/ProductCard/ListProductCard'
-import ProductCard from '../../Component/ProductCard/ProductCard'
-import { SkeletonCard, SkeletonListCard } from '../../Component/Skeleton/SkeletonCard'
-import useDataFetching from '../../hook/useDataFatching'
+import { Dialog, Disclosure, Transition } from '@headlessui/react';
+import { Fragment, useEffect, useState } from 'react';
+import { BsFunnel } from "react-icons/bs";
+import { GoDash, GoPlus } from "react-icons/go";
+import { HiMiniXMark } from "react-icons/hi2";
+import { IoIosArrowDown, IoIosClose } from "react-icons/io";
+import { useLocation, useNavigate } from 'react-router-dom';
+import Pagination from '../../Component/pagination/Pagination';
+import ListProductCard from '../../Component/ProductCard/ListProductCard';
+import ProductCard from '../../Component/ProductCard/ProductCard';
+import { SkeletonCard, SkeletonListCard } from '../../Component/Skeleton/SkeletonCard';
+import useDataFetching from '../../hook/useDataFatching';
 
 const sortOptions = [
     { name: 'Price: Low to High', value: "asc", current: false },
@@ -202,7 +203,7 @@ function StorePage() {
                                             onClick={() => setMobileFiltersOpen(false)}
                                         >
                                             <span className="sr-only">Close menu</span>
-                                            <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                                            <HiMiniXMark className="h-6 w-6" aria-hidden="true" />
                                         </button>
                                     </div>
 
@@ -233,9 +234,9 @@ function StorePage() {
                                                                 <span className="font-medium text-gray-900">{section.name}</span>
                                                                 <span className="ml-6 flex items-center">
                                                                     {open ? (
-                                                                        <MinusIcon className="h-5 w-5" aria-hidden="true" />
+                                                                        <GoDash className="h-5 w-5" aria-hidden="true" />
                                                                     ) : (
-                                                                        <PlusIcon className="h-5 w-5" aria-hidden="true" />
+                                                                        <GoPlus className="h-5 w-5" aria-hidden="true" />
                                                                     )}
                                                                 </span>
                                                             </Disclosure.Button>
@@ -318,7 +319,7 @@ function StorePage() {
                                 onClick={() => setMobileFiltersOpen(true)}
                             >
                                 <span className="sr-only">Filters</span>
-                                <FunnelIcon className="h-5 w-5" aria-hidden="true" />
+                                <BsFunnel className="h-5 w-5" aria-hidden="true" />
                             </button>
                         </div>
                     </div>
@@ -364,9 +365,9 @@ function StorePage() {
                                                             <span className="font-medium text-gray-900">{section.name}</span>
                                                             <span className="ml-6 flex items-center">
                                                                 {open ? (
-                                                                    <MinusIcon className="h-5 w-5" aria-hidden="true" />
+                                                                    <GoDash className="h-5 w-5" aria-hidden="true" />
                                                                 ) : (
-                                                                    <PlusIcon className="h-5 w-5" aria-hidden="true" />
+                                                                    <GoPlus className="h-5 w-5" aria-hidden="true" />
                                                                 )}
                                                             </span>
                                                         </Disclosure.Button>
@@ -407,9 +408,9 @@ function StorePage() {
                                                             <span className="font-medium text-gray-900">{section.name}</span>
                                                             <span className="ml-6 flex items-center">
                                                                 {open ? (
-                                                                    <MinusIcon className="h-5 w-5" aria-hidden="true" />
+                                                                    <GoDash className="h-5 w-5" aria-hidden="true" />
                                                                 ) : (
-                                                                    <PlusIcon className="h-5 w-5" aria-hidden="true" />
+                                                                    <GoPlus className="h-5 w-5" aria-hidden="true" />
                                                                 )}
                                                             </span>
                                                         </Disclosure.Button>
