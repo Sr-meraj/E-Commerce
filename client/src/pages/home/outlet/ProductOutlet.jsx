@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import { FaArrowRight } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import ListProductCard from '../../../Component/ProductCard/ListProductCard';
 import { SkeletonListCard } from '../../../Component/Skeleton/SkeletonCard';
 import useDataFetching from '../../../hook/useDataFatching';
@@ -30,9 +31,9 @@ export default function ProductOutlet() {
                                     All Items</h3>
                             </a>
 
-                            <a href='' className="mt-2 flex justify-start items-center gap-3 line-clamp-3 text-sm/relaxed text-main">
+                            <Link to='/shop' className="mt-2 flex justify-start items-center gap-3 line-clamp-3 text-sm/relaxed text-main">
                                 Shop now <FaArrowRight />
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 </article>
