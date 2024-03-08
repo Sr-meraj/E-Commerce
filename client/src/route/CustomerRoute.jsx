@@ -1,7 +1,7 @@
 import { Outlet, Route, Routes } from "react-router-dom";
 import Footer from "../Component/Footer";
 import Navigation from "../Component/Navigation";
-import Login from "../pages/AuthFroms/Login";
+import AuthLayout from "../pages/AuthFroms/AuthLayout";
 import CartPage from "../pages/CartPage/CartPage";
 import CheckOutPage from "../pages/CheckOutPage/CheckOutPage";
 import Home from "../pages/home/Home";
@@ -40,7 +40,7 @@ const CustomerRoute = () => {
                         element={<ProductSingle />}
                     />
                     <Route path="checkout" element={<CheckOutPage />} />
-                    <Route path="login" element={<Login />} />
+                    <Route path="my-account" element={<AuthLayout />} />
                     <Route
                         path="account/my-order"
                         element={<OrderDetails />}

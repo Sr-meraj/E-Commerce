@@ -128,7 +128,7 @@ export default function Navigation() {
 
                                 <div className="space-y-6 border-t border-gray-200 px-4 py-6">
                                     <div className="flow-root">
-                                        <Link to={"/login"} className="-m-2 block p-2 font-medium text-gray-900">
+                                        <Link to={"/my-account"} className="-m-2 block p-2 font-medium text-gray-900">
                                             Sign in
                                         </Link>
                                     </div>
@@ -277,7 +277,7 @@ export default function Navigation() {
 
                             <div className="ml-auto flex items-center">
                                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                                    <Link to={"/login"} className="text-sm font-medium text-gray-700 hover:text-gray-800">
+                                    <Link to={"/my-account"} className="text-sm font-medium text-gray-700 hover:text-gray-800">
                                         Sign in
                                     </Link>
                                     <span className="h-6 w-px bg-gray-200" aria-hidden="true" />

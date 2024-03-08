@@ -7,8 +7,12 @@ export default {
   theme: {
     extend: {
       colors: {
-      main: "#088178",
-    },
+        main: "#088178",
+      },
+      container: {
+        center: true,
+        padding: '2rem',
+      },
     },
   },
   plugins: [
