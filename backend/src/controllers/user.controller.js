@@ -279,7 +279,7 @@ const changeAccountDetails = asyncHandler(async (req, res) => {
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
     const user = req.user;
-    const oldAvatar = user.avatar;
+    const oldAvatar = user?.avatar;
     const public_id = oldAvatar.split("/").pop().split(".")[0]
 
     // Check image field in request body
