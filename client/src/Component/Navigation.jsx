@@ -132,11 +132,6 @@ export default function Navigation() {
                                             Sign in
                                         </Link>
                                     </div>
-                                    <div className="flow-root">
-                                        <Link to={"/register"} className="-m-2 block p-2 font-medium text-gray-900">
-                                            Create account
-                                        </Link>
-                                    </div>
                                 </div>
 
                             </Dialog.Panel>
@@ -279,10 +274,6 @@ export default function Navigation() {
                                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
                                     <Link to={"/my-account"} className="text-sm font-medium text-gray-700 hover:text-gray-800">
                                         Sign in
-                                    </Link>
-                                    <span className="h-6 w-px bg-gray-200" aria-hidden="true" />
-                                    <Link to={"/#"} className="text-sm font-medium text-gray-700 hover:text-gray-800">
-                                        Create account
                                     </Link>
                                 </div>
 

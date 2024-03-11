@@ -1,4 +1,6 @@
 import { Outlet, Route, Routes } from "react-router-dom";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Footer from "../Component/Footer";
 import Navigation from "../Component/Navigation";
 import AuthLayout from "../pages/AuthFroms/AuthLayout";
@@ -9,6 +11,7 @@ import OrderDetails from "../pages/OrderPage/OrderDetails";
 import ProductSingle from "../pages/ProductSinglePage/ProductSingle";
 import ShopPage from "../pages/shop/StorePage";
 
+
 const CustomerRoute = () => {
     return (
         <>
@@ -18,6 +21,18 @@ const CustomerRoute = () => {
                     path="/*"
                     element={
                         <div>
+                            <ToastContainer
+                                position="top-center"
+                                autoClose={3000}
+                                hideProgressBar={false}
+                                newestOnTop={false}
+                                closeOnClick
+                                rtl={false}
+                                pauseOnFocusLoss
+                                draggable
+                                pauseOnHover
+                                theme="colored" />
+
                             <Navigation />
                             <Outlet />
                             <Footer />
