@@ -1,17 +1,16 @@
 import { Field, Form, Formik } from 'formik';
-import { useState } from "react";
-import { Link } from 'react-router-dom';
+import { useContext, useState } from 'react';
+import { HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-
+import { AuthContext } from '../../provider/AuthProvider';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const classes = 'input focus:outline-none input-bordered w-full max-w-xs'
 const Signup = () => {
-    const [checkbox, setCheckbox] = useState(false);
-    const handleConditionCheck = () => {
-        setCheckbox(!checkbox);
-    }
-
+    const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false)
+    const { createAccount, error } = useContext(AuthContext)
     const initialValues = {
         firstName: '',
         lastName: '',
@@ -41,6 +40,26 @@ const Signup = () => {
         return errors;
     }
 
+    const handleSubmit = async (values) => {
+        console.log('log');
+        await sleep(500);
+        // alert(JSON.stringify(values, null, 2));
+        const newData = {
+            ...values,
+            fullname: values.firstName + " " + values.lastName,
+        };
+
+        const result = await createAccount(newData);
+        if (!result) {
+            toast.error('Failed to sign up! Please try again later.');
+            console.log(error);
+        } {
+            toast.success('Sign up successful!');
+            console.log('result', result);
+            // navigate('/')
+        }
+    }
+
     return (
         <>
             <div className="">
@@ -57,11 +76,7 @@ const Signup = () => {
                                     <Formik
                                         initialValues={initialValues}
                                         validate={validationCheck}
-                                        onSubmit={async (values) => {
-                                            await sleep(500);
-                                            toast.success('🦄 Wow so easy!');
-                                            alert(JSON.stringify(values, null, 2));
-                                        }}
+                                        onSubmit={handleSubmit}
                                     >
                                         {({ errors, isSubmitting, touched }) => (
                                             <Form>
@@ -102,8 +117,14 @@ const Signup = () => {
                                                     <div className="label">
                                                         <span className="label-text">Password</span>
                                                     </div>
-                                                    <Field type="password" name="password" placeholder="******" className="input focus:outline-none input-bordered w-full" />
-                                                    {errors.password && touched.password && <div className="text-red-500">{errors.password}</div>}
+                                                    <div className="relative">
+
+                                                        <Field type={`${showPassword ? "text" : 'password'}`} name="password" placeholder="******" className="input focus:outline-none input-bordered w-full" />
+                                                        {errors.password && touched.password && <div className="text-red-500">{errors.password}</div>}
+                                                        <span className="absolute right-4 top-4">
+                                                            {showPassword ? <span className='cursor-pointer' onClick={() => setShowPassword(!showPassword)}><HiOutlineEye /></span> : <span className='cursor-pointer' onClick={() => setShowPassword(!showPassword)}><HiOutlineEyeOff /></span>}
+                                                        </span>
+                                                    </div>
                                                 </label>
                                                 {/* <!-- End Form Group --> */}
 

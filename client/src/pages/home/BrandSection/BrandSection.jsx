@@ -47,7 +47,6 @@ const BrandSection = () => {
     };
     const apiUrl = 'brands'
     const { data, loading, error } = useDataFetching(apiUrl)
-    console.log(data);
     return (
         <div>
             <h3 className="card-title "><span className="text-main">Featured</span> Brands</h3>

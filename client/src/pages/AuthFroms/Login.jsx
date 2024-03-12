@@ -1,11 +1,16 @@
 import { Field, Form, Formik } from 'formik';
+import { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { AuthContext } from '../../provider/AuthProvider';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const classes = 'input focus:outline-none input-bordered w-full max-w-xs'
 
 
 const Login = () => {
+    const { Login, error, user, setUser } = useContext(AuthContext)
+    const navigate = useNavigate()
     const initialValues = {
         email: '',
         password: '',
@@ -31,6 +36,23 @@ const Login = () => {
 
         return errors;
     }
+    const onSubmit = async (values) => {
+        await sleep(500);
+
+        const result = await Login(values.email, values.password);
+        if (!result) {
+            toast.error('Failed to login! Please try again later.');
+            console.log(error);
+        } {
+            toast.success('Login successful!');
+            setUser(result)
+            console.log('result', result);
+            console.log('user', user);
+            navigate('/')
+        }
+
+    };
+
     return (
         <>
             <div className="">
@@ -46,11 +68,7 @@ const Login = () => {
                                     <Formik
                                         initialValues={initialValues}
                                         validate={validationCheck}
-                                        onSubmit={async (values) => {
-                                            await sleep(500);
-                                            toast.success('🦄 Wow so easy!');
-                                            alert(JSON.stringify(values, null, 2));
-                                        }}
+                                        onSubmit={onSubmit}
                                     >
                                         {({ errors, isSubmitting, touched }) => (
                                             <Form>

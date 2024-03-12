@@ -39,7 +39,6 @@ const userSchema = new mongoose.Schema(
         },
         phone: {
             type: String,
-            required: true,
             minlength: 10,
             maxlength: 15
         },
@@ -60,7 +59,6 @@ const userSchema = new mongoose.Schema(
         ],
         avatar: {
             type: String, // cloudinary url
-            required: true,
         },
         role: {
             type: String,

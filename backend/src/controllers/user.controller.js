@@ -60,42 +60,37 @@ const registerUser = asyncHandler(async (req, res) => {
 
     if (existingUser) {
         res.status(409).json(
-             new ApiError(409, "User with username or email already exits",'User with this Email or Username already exists')
+             new ApiError(409, null, "User with username or email already exits",'User with this Email or Username already exists')
             )
     }
 
-    const avatarLocalPath = req.files?.avatar[0]?.path;
+    let avatar = null;
 
-    if (!avatarLocalPath) {
-        throw new ApiError(400, "Avatar file is required")
-    }
+    if (req.files && req.files.avatar) {
+        const avatarLocalPath = req.files.avatar[0].path;
+        avatar = await uploadOnCloudinary(avatarLocalPath);
 
-    const avatar = await uploadOnCloudinary(avatarLocalPath);
-
-    if (!avatar) {
-        throw new ApiError(400, "Avatar file is required")
+        if (!avatar) {
+            throw new ApiError(400, "Error uploading avatar");
+        }
     }
 
     const user = await User.create({
         fullname,
-        avatar: avatar.url,
+        avatar: avatar ? avatar.url : null,
         email,
         username: username.toLowerCase(),
         password,
-        phone
     })
-
-    // TODO:  Remove this after testing
-    const createdUser = await User.findById(user._id).select("-refreshToken")
     
-    // const createdUser = await User.findById(user._id).select("-password -refreshToken")
+    const createdUser = await User.findById(user._id).select("-password -refreshToken")
 
     if (!createdUser) {
         throw new ApiError(500, "Something went wrong while registering the user")
     }
 
     return res.status(201).json(
-        new ApiResponse(201, createdUser, "User registered successfully")
+        new ApiResponse(201, {uid:createdUser._id}, "User registered successfully")
     )
 
 })
@@ -300,7 +295,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
                 avatar: avatar.url
             }
         },
-        { new: true }
+        { new: true, upsert: true }
     ).select("-password");
 
     // Delete the old image from Cloudinary if the avatar has changed
