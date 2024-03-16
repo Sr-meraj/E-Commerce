@@ -25,7 +25,7 @@ router.route('/register').post(
 router.route('/login').post(loginUser)
 
 // secure routes
-router.route('/logout').post(verifyJWT, logout)
+router.route('/logout').get(verifyJWT, logout)
 router.route('/refresh-token').post(refreshAccessToken)
 router.route('/change-password').put(verifyJWT, changeCurrentPassword)
 router.route('/current-user').get(verifyJWT, getCurrentUser)
