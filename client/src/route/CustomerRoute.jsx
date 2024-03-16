@@ -10,6 +10,8 @@ import Home from "../pages/home/Home";
 import OrderDetails from "../pages/OrderPage/OrderDetails";
 import ProductSingle from "../pages/ProductSinglePage/ProductSingle";
 import ShopPage from "../pages/shop/StorePage";
+import PrivateRoute from "./PrivateRoute";
+import PublicRoute from "./PublicRoute";
 
 
 const CustomerRoute = () => {
@@ -55,10 +57,10 @@ const CustomerRoute = () => {
                         element={<ProductSingle />}
                     />
                     <Route path="checkout" element={<CheckOutPage />} />
-                    <Route path="my-account" element={<AuthLayout />} />
+                    <Route path="my-account" element={<PublicRoute><AuthLayout /></PublicRoute>} />
                     <Route
                         path="account/my-order"
-                        element={<OrderDetails />}
+                        element={<PrivateRoute><OrderDetails /></PrivateRoute>}
                     />
                 </Route>
             </Routes>
