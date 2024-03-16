@@ -1,6 +1,5 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import HomeBannerCarousel from '../../Component/Carousel/Home/HomeBannerCarousel';
-import { AuthContext } from '../../provider/AuthProvider';
 
 import BrandSection from './BrandSection/BrandSection';
 import FeaturedSection from './FeaturedSection';
@@ -9,8 +8,6 @@ import ProductSliderSection from './ProductSliderSection/ProductSliderSection';
 import ProductSection from './ProductsSection/ProductSection';
 
 function Home() {
-    const { loading, error, user } = useContext(AuthContext)
-    console.log(loading, error, user);
     return (
         <div className='container mx-auto px-4'>
             <div className="">

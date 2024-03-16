@@ -1,10 +1,10 @@
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import useDataMutation from '../hook/useDataMutation';
 
 export const AuthContext = createContext(null);
 
 const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
+    const [currentUser, setCurrentUser] = useState(null);
     const { loading, error, postData, putData, getData } = useDataMutation();
 
     const Login = async (email, password) => {
@@ -24,16 +24,23 @@ const AuthProvider = ({ children }) => {
     };
 
     const logoutUser = async () => {
-        return await postData('users/logout'); // Rename the function to avoid conflict
+        return await getData('users/logout', {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+            }
+        });
     };
 
     useEffect(() => {
         const getUserData = async () => {
             try {
-                const userData = await getData('users/current-user');
-                console.log(userData);
+                const userData = await getData('users/current-user', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    }
+                });
                 if (!userData?.success) throw new Error("Could not retrieve user information");
-                setUser(userData?.data);
+                setCurrentUser(userData?.data);
             } catch (error) {
                 console.log(error);
             }
@@ -42,7 +49,7 @@ const AuthProvider = ({ children }) => {
         getUserData();
     }, []);
 
-    const authInfo = { user, Login, logout: logoutUser, createAccount, updateAccountInfo, updateAccountAvatar, loading, error, setUser };
+    const authInfo = { currentUser, Login, logout: logoutUser, createAccount, updateAccountInfo, updateAccountAvatar, loading, error, setUser: setCurrentUser };
 
     return (
         <AuthContext.Provider value={authInfo}>
@@ -52,3 +59,5 @@ const AuthProvider = ({ children }) => {
 };
 
 export default AuthProvider;
+
+export const useAuthContext = () => useContext(AuthContext);

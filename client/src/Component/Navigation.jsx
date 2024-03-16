@@ -1,10 +1,14 @@
 import { Dialog, Popover, Tab, Transition } from '@headlessui/react';
 import { Fragment, useState } from 'react';
 
+import { FiUser } from "react-icons/fi";
 import { HiBars3, HiMiniMagnifyingGlass, HiMiniXMark, HiOutlineShoppingBag } from "react-icons/hi2";
+
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import logo from '../assets/logo.svg';
 import { navigation } from '../config/NavigationData';
+import { useAuthContext } from '../provider/AuthProvider';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -12,6 +16,19 @@ function classNames(...classes) {
 
 export default function Navigation() {
     const [open, setOpen] = useState(false)
+    const { currentUser, logout, setUser } = useAuthContext()
+
+    const Logout = async () => {
+        const res = await logout();
+        if (res.success) {
+            localStorage.removeItem('access_token');
+            setUser(null);
+            toast.success(`${res.message}`);
+        } else {
+            toast.error(res.error);
+        }
+    }
+
 
     return (
         <div className="bg-white">
@@ -49,7 +66,7 @@ export default function Navigation() {
                                     >
                                         <span className="absolute -inset-0.5" />
                                         <span className="sr-only">Close menu</span>
-                                        <HiMiniXMark className="h-6 w-6" aria-hidden="true" />
+                                        <HiMiniXMark className="h-5 w-5" aria-hidden="true" />
                                     </button>
                                 </div>
 
@@ -128,9 +145,9 @@ export default function Navigation() {
 
                                 <div className="space-y-6 border-t border-gray-200 px-4 py-6">
                                     <div className="flow-root">
-                                        <Link to={"/my-account"} className="-m-2 block p-2 font-medium text-gray-900">
+                                        {currentUser ? (<span className="-m-2 block p-2 font-medium text-gray-900"> Logout </span>) : (<Link to={"/my-account"} className="-m-2 block p-2 font-medium text-gray-900">
                                             Sign in
-                                        </Link>
+                                        </Link>)}
                                     </div>
                                 </div>
 
@@ -155,7 +172,7 @@ export default function Navigation() {
                             >
                                 <span className="absolute -inset-0.5" />
                                 <span className="sr-only">Open menu</span>
-                                <HiBars3 className="h-6 w-6" aria-hidden="true" />
+                                <HiBars3 className="h-5 w-5" aria-hidden="true" />
                             </button>
 
                             {/* Logo */}
@@ -270,33 +287,71 @@ export default function Navigation() {
                                 </div>
                             </Popover.Group>
 
-                            <div className="ml-auto flex items-center">
-                                <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                                    <Link to={"/my-account"} className="text-sm font-medium text-gray-700 hover:text-gray-800">
-                                        Sign in
-                                    </Link>
-                                </div>
-
+                            <div className="ml-auto flex items-center gap-3">
 
                                 {/* Search */}
-                                <div className="flex lg:ml-6">
+                                <div className="flex">
                                     <Link to={"/#"} className="p-2 text-gray-400 hover:text-gray-500">
                                         <span className="sr-only">Search</span>
-                                        <HiMiniMagnifyingGlass className="h-6 w-6" aria-hidden="true" />
+                                        <HiMiniMagnifyingGlass className="h-5 w-5" aria-hidden="true" />
                                     </Link>
                                 </div>
 
                                 {/* Cart */}
-                                <div className="ml-4 flow-root lg:ml-6">
-                                    <Link to={'/cart'} className="group  indicator">
-                                        <span className="indicator-item badge badge-success text-white px-1.5">0</span>
+                                <div className="flow-root">
+                                    <Link to={'/cart'} className="group indicator">
+                                        <span className="sr-only indicator-item badge badge-success text-white px-1.5 text-xs">0</span>
                                         <HiOutlineShoppingBag
-                                            className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
+                                            className="h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
                                             aria-hidden="true"
                                         />
-                                        <span className="sr-only ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">0</span>
+                                        <span className=" ml-1 text-sm font-medium text-gray-700 group-hover:text-gray-800">0</span>
                                         <span className="sr-only">items in cart, view bag</span>
                                     </Link>
+                                </div>
+                                <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
+
+                                    {currentUser ?
+                                        (
+                                            <div className="dropdown menu-dropdown-toggle  dropdown-end rounded-full">
+                                                <div tabIndex={0} role="button" className="flex items-center justify-center m-1">
+                                                    {
+                                                        currentUser?.avatar ? (
+                                                            <div className="avatar">
+                                                                <div className="w-8 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                                                                    <img src={currentUser?.avatar} />
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="avatar placeholder">
+                                                                <div className="bg-neutral text-neutral-content rounded-full w-8">
+                                                                    <span className="text-xs">{currentUser?.fullname.charAt(0)}</span>
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    }
+                                                </div>
+                                                <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                                                    <li>
+                                                        <span className="text-sm font-medium text-gray-700 hover:text-gray-800">
+                                                            My Account
+                                                        </span>
+                                                    </li>
+                                                    <li>
+                                                        <span className="text-sm font-medium text-gray-700 hover:text-gray-800">
+                                                            Orders
+                                                        </span>
+                                                    </li>
+                                                    <li onClick={Logout}>
+                                                        <span className="text-sm font-medium text-gray-700 hover:text-gray-800"> Logout </span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        )
+                                        : (<Link to={"/my-account"} className="text-sm font-medium p-2 text-gray-400 hover:text-gray-500">
+                                            <FiUser className="h-5 w-5" />
+                                        </Link>)
+                                    }
                                 </div>
                             </div>
                         </div>

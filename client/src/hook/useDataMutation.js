@@ -9,7 +9,7 @@ const useDataMutation = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const sendRequest = async (method, url, data) => {
+  const sendRequest = async (method, url, data,info) => {
     try {
       setLoading(true);
       // Introduce a 1.2 seconds (1200 milliseconds) loading delay
@@ -19,6 +19,7 @@ const useDataMutation = () => {
         method,
         url,
         data,
+        info
       });
 
       if (response.data && response.data.data) {
@@ -36,27 +37,27 @@ const useDataMutation = () => {
     }
   };
 
-  const postData = async (url, data) => {
-    return await sendRequest('post', url, data);
+  const postData = async (url, data,info) => {
+    return await sendRequest('post', url, data, info);
   };
 
-  const putData = async (url, data) => {
-    return await sendRequest('put', url, data);
+  const putData = async (url, data, info) => {
+    return await sendRequest('put', url, data, info);
   };
 
-  const deleteData = async (url) => {
-    return await sendRequest('delete', url);
+  const deleteData = async (url, info) => {
+    return await sendRequest('delete', url, info);
   };
-  const getData = async (url) => {
+  const getData = async (url,others) => {
     try {
       setLoading(true);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const response = await axiosInstance.get(url);
+      const response = await axiosInstance.get(url, others);
 
       if (response.data && response.data.data) {
         setError(null);
-        return response.data.data;
+        return response.data;
       } else {
         setError('Invalid data structure in the response');
         return null;

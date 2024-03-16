@@ -1,16 +1,15 @@
 import { Field, Form, Formik } from 'formik';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { AuthContext } from '../../provider/AuthProvider';
+import { useAuthContext } from '../../provider/AuthProvider';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const classes = 'input focus:outline-none input-bordered w-full max-w-xs'
 const Signup = () => {
-    const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false)
-    const { createAccount, error } = useContext(AuthContext)
+    const { createAccount, error } = useAuthContext()
     const initialValues = {
         firstName: '',
         lastName: '',
@@ -40,23 +39,28 @@ const Signup = () => {
         return errors;
     }
 
-    const handleSubmit = async (values) => {
-        console.log('log');
+    const handleSubmit = async (values, { resetForm }) => {
         await sleep(500);
-        // alert(JSON.stringify(values, null, 2));
         const newData = {
             ...values,
             fullname: values.firstName + " " + values.lastName,
         };
 
-        const result = await createAccount(newData);
-        if (!result) {
+        try {
+            const result = await createAccount(newData);
+            if (result) {
+                toast.success('Sign up successful!');
+                console.log('result', result);
+                resetForm();
+            } else {
+                toast.error('Failed to sign up! Please try again later.');
+                // Obtain error from the context or createAccount function
+                console.log(error);
+            }
+        } catch (error) {
+            // Handle any errors thrown during the createAccount function call
             toast.error('Failed to sign up! Please try again later.');
             console.log(error);
-        } {
-            toast.success('Sign up successful!');
-            console.log('result', result);
-            // navigate('/')
         }
     }
 
