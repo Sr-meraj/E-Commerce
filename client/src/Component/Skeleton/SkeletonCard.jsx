@@ -14,12 +14,12 @@ const SkeletonCard = ({ count }) => {
 };
 const SkeletonListCard = ({ count }) => {
     const skeletonItems = Array.from({ length: count }, (_, index) => (
-        <div key={index} className="grid grid-cols-5 gap-2 w-full mb-4">
+        <div key={index} className="grid grid-cols-5 gap-4 space-x-4 w-full mb-4">
             <div className="skeleton size-16"></div>
-            <div className="col-span-4 space-y-2">
+            <div className="col-span-4 space-y-3">
                 <div className="skeleton h-3  w-full"></div>
                 <div className="skeleton h-3 w-2/3"></div>
-                <div className="skeleton h-3 w-2/3"></div>
+                <div className="skeleton h-3 w-1/3"></div>
             </div>
         </div>
     ));
