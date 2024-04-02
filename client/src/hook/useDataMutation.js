@@ -48,12 +48,12 @@ const useDataMutation = () => {
   const deleteData = async (url, info) => {
     return await sendRequest('delete', url, info);
   };
-  const getData = async (url,others) => {
+  const getData = async (url,info) => {
     try {
       setLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1200));
 
-      const response = await axiosInstance.get(url, others);
+      const response = await axiosInstance.get(url, info);
 
       if (response.data && response.data.data) {
         setError(null);

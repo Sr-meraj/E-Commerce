@@ -36,26 +36,26 @@ const singleFiler = [
         name: 'Price',
         options: [
             { value: '159-399', label: '$159 to $399 And Above' },
-            { value: '399-999', label: '$399 to $999 And Above' },
-            { value: '999-2000', label: '$999 to $2000 And Above' },
-            { value: '2000-4000', label: '$2000 to $4000 And Above' },
-            { value: '4000-5000', label: '$4000 to $5000 And Above' },
+            { value: '400-999', label: '$400 to $999 And Above' },
+            { value: '1000-2000', label: '$1000 to $2000 And Above' },
+            { value: '2001-3000', label: '$2001 to $3000 And Above' },
+            { value: '3001-5000', label: '$3001 to $5000 And Above' },
         ],
     },
-    {
-        id: 'discount',
-        name: 'Discount',
-        options: [
-            { value: '10', label: '10% And Above' },
-            { value: '20', label: '20% And Above' },
-            { value: '30', label: '30% And Above' },
-            { value: '40', label: '40% And Above' },
-            { value: '50', label: '50% And Above' },
-            { value: '60', label: '60% And Above' },
-            { value: '70', label: '70% And Above' },
-            { value: '80', label: '80% And Above' }
-        ],
-    },
+    // {
+    //     id: 'discount',
+    //     name: 'Discount',
+    //     options: [
+    //         { value: '10', label: '10% And Above' },
+    //         { value: '20', label: '20% And Above' },
+    //         { value: '30', label: '30% And Above' },
+    //         { value: '40', label: '40% And Above' },
+    //         { value: '50', label: '50% And Above' },
+    //         { value: '60', label: '60% And Above' },
+    //         { value: '70', label: '70% And Above' },
+    //         { value: '80', label: '80% And Above' }
+    //     ],
+    // },
 ];
 
 

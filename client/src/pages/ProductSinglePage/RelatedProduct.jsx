@@ -1,9 +1,11 @@
+import { useQuery } from "@tanstack/react-query";
 import { Fragment } from "react";
 import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
 import SliderProductCard from "../../Component/ProductCard/SliderProductCard";
+import { axiosInstance } from "../../utility/utility";
 
 function SampleNextArrow(props) {
     const { className, style, onClick } = props;
@@ -26,7 +28,7 @@ function SamplePrevArrow(props) {
         </button>
     );
 }
-const RelatedProduct = ({ showItem }) => {
+const RelatedProduct = ({ showItem, data }) => {
     const settings = {
         autoplay: true,
         autoplaySpeed: 4600,
@@ -61,6 +63,35 @@ const RelatedProduct = ({ showItem }) => {
             }
         ]
     };
+    const apiUrl = `products/category/${data?.category?._id}`;
+    const { isPending, error, data: rltData } = useQuery({
+        queryKey: ['relatedProductData'],
+        queryFn: async () => {
+            const { data } = await axiosInstance.get(
+                apiUrl,
+            )
+            if (data.success) {
+                return data.data;
+            } else {
+                throw new Error('Failed to fetch products');
+            }
+        },
+    })
+    // exicute all data expect the data provided
+    // Check for errors
+    if (error) {
+        return <p>An error has occurred: {error.message}</p>;
+    }
+
+    // Check if data is not an array
+    if (!Array.isArray(rltData)) {
+        return <p>No related products found.</p>;
+    }
+
+    // Filter related products
+    const relatedProducts = rltData.filter(item => item._id !== data?._id);
+
+
     return (
         <div>
             <h4 className='font-medium text-2xl pb-5'>
@@ -68,18 +99,26 @@ const RelatedProduct = ({ showItem }) => {
                 <span className='block mt-2 h-px bg-slate-300 after:block after:h-[3px] after:w-20 after:bg-main'></span>
             </h4>
             <div className="slider-container py-4">
-                <Slider {...settings} >
-                    {
-                        [0, 1, 2, 3, 4, 5, 6].map((item) => (
-                            <Fragment key={item}>
-                                <SliderProductCard className={`${showItem < 5 ? 'h-44 md:h-[280px]' : ''}`} />
-                            </Fragment>
-                        ))
-                    }
-
-                </Slider>
+                {isPending && (
+                    <div className="flex flex-nowrap  justify-center items-center gap-5">
+                        <SkeletonCard count={4} /> {/* Adjust the count as needed */}
+                    </div>
+                )}
+                {!isPending && relatedProducts.length === 0 && (
+                    <p>No related products found.</p>
+                )}
+                {!isPending && relatedProducts.length > 0 && (
+                    <div className="slider-container py-4">
+                        <Slider {...settings} >
+                            {relatedProducts.map((item) => (
+                                <Fragment key={item}>
+                                    <SliderProductCard item={item} className={`${showItem < 5 ? 'h-44 md:h-[280px]' : ''}`} />
+                                </Fragment>
+                            ))}
+                        </Slider>
+                    </div>
+                )}
             </div>
-
         </div>
     );
 }

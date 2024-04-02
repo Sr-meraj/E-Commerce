@@ -32,7 +32,11 @@ const uploadOnCloudinary = async (localFilePath) => {
         // upload the file on cloudinary
         const response = await cloudinary.uploader.upload(localFilePath, {
             public_id: `Ecommerce/${Date.now()}`,
-            resource_type: 'auto'
+            resource_type: 'auto',
+            quality: 'auto',
+            width: 620,
+            height: 620,
+            crop: 'scale'
         });
         // file has been uploaded successfully
         console.log("file is uploaded on cloudinary", response.url);

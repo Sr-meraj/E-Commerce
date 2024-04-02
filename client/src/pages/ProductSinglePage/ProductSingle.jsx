@@ -1,12 +1,14 @@
 import { RadioGroup } from '@headlessui/react';
 import { StarIcon } from '@heroicons/react/20/solid';
-import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { BsArrowRepeat } from "react-icons/bs";
 import { HiMiniMinus, HiOutlinePlus } from 'react-icons/hi2';
 import { IoCardOutline } from "react-icons/io5";
 import { PiCrownSimple } from "react-icons/pi";
 import { Link, useParams } from 'react-router-dom';
-import useDataFetching from '../../hook/useDataFatching.js';
+import { calculateCartTotal, handleAddToCart } from '../../utility/cart-action.js';
+import { axiosInstance } from '../../utility/utility.js';
 import DescriptionSection from './DescriptionSection';
 import ProductCarousel from './ProductCarousel';
 import RelatedProduct from './RelatedProduct';
@@ -47,24 +49,36 @@ export default function ProductSingle() {
     const [quantity, setQuantity] = useState(1)
     const { slug } = useParams()
     const apiUrl = `http://localhost:4000/api/v1/products/${slug}`;
-    const { data, loading, error } = useDataFetching(apiUrl)
+
+    const { isPending, error, data, refetch } = useQuery({
+        queryKey: ['singleProductData', slug],
+        queryFn: async () => {
+            const { data } = await axiosInstance.get(apiUrl)
+            if (data.success) {
+                return data.data;
+            } else {
+                throw new Error('Failed to fetch products');
+            }
+        },
+    });
+
+    useEffect(() => {
+        refetch();
+    }, [slug]);
 
     const increaseQuantity = () => {
         setQuantity(prev => prev + 1)
     }
     const decreaseQuantity = () => {
-        setQuantity(prev => (quantity >= 1) && prev - 1)
-    }
+        setQuantity(prev => Math.max(prev - 1, 1));
+    };
 
-    const transformedImages = data?.productImages?.map((image, index) => (
+
+    const transformedImages = !isPending && data?.productImages?.map((image, index) => (
         <div key={index}>
-            <img src={image} alt={data.title} />
+            <img src={image} alt={data?.title} />
         </div>
     ));
-
-    console.log(data)
-
-    if (loading) return <p>Loading</p>
     if (error) return <p>Something went wrong</p>
     return (
         <div className="bg-white">
@@ -73,9 +87,9 @@ export default function ProductSingle() {
                     <div className="text-sm breadcrumbs">
                         <ul>
                             <li><Link to='/'>Home</Link></li>
-                            <li><a>{data.category.name}</a></li>
-                            {data.subcategory && <li><a>{data.subcategory.name}</a></li>}
-                            <li>{data.title}</li>
+                            <li><a>{data?.category?.name}</a></li>
+                            {data?.subcategory && <li><a>{data?.subcategory?.name}</a></li>}
+                            <li>{data?.title}</li>
                         </ul>
                     </div>
                 </div>
@@ -86,89 +100,110 @@ export default function ProductSingle() {
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12'>
                     {/* <!-- images - start --> */}
                     <div className="space-y-4 lg:col-span-2">
-                        <ProductCarousel images={transformedImages} />
+                        {isPending ? <><div className="skeleton size-full"></div></> : <>
+                            <ProductCarousel images={transformedImages} />
+                        </>}
                     </div>
                     {/* <!-- images - end --> */}
 
                     {/* Product info */}
                     <div className="px-4 pb-6 lg:col-span-2 sm:px-6 lg:px-8 lg:pb-14">
                         <div className="">
-                            <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{data.title}</h1>
+                            {isPending ? <><div className="skeleton w-full h-4"></div></> : <>
+                                <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{data?.title}</h1>
+                            </>}
                         </div>
 
                         {/* Options */}
                         <div className="mt-4 lg:row-span-3 lg:mt-0 ">
                             <h2 className="sr-only">Product information</h2>
-                            <div className='flex justify-between items-center py-4'>
+                            <>
 
-                                <p className="text-sm tracking-tight text-gray-500">Brands: <span className='text-main font-medium'>{data.brand?.name}</span></p>
-
-                                {/* Reviews */}
-                                <div className="mt-0">
-                                    <h3 className="sr-only">Reviews</h3>
-                                    <div className="flex items-center">
+                                {isPending ? <div className='flex justify-between items-center py-4'><div className="skeleton w-12 h-2"></div><div className="skeleton w-12 h-2"></div></div> : <div className='flex justify-between items-center py-4'>
+                                    <p className="text-sm tracking-tight text-gray-500">Brands: <span className='text-main font-medium'>{data?.brand?.name}</span></p>
+                                    {/* Reviews */}
+                                    <div className="mt-0">
+                                        <h3 className="sr-only">Reviews</h3>
                                         <div className="flex items-center">
-                                            {[0, 1, 2, 3, 4].map((rating) => (
-                                                <StarIcon
-                                                    key={rating}
-                                                    className={classNames(
-                                                        reviews.average > rating ? 'text-amber-400' : 'text-gray-200',
-                                                        'h-5 w-5 flex-shrink-0'
-                                                    )}
-                                                    aria-hidden="true"
-                                                />
-                                            ))}
+                                            <div className="flex items-center">
+                                                {[0, 1, 2, 3, 4]?.map((rating) => (
+                                                    <StarIcon
+                                                        key={rating}
+                                                        className={classNames(
+                                                            reviews.average > rating ? 'text-amber-400' : 'text-gray-200',
+                                                            'h-5 w-5 flex-shrink-0'
+                                                        )}
+                                                        aria-hidden="true"
+                                                    />
+                                                ))}
+                                            </div>
+                                            <p className="sr-only">{reviews.average} out of 5 stars</p>
+                                            <a href={reviews.href} className="ml-3 text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                                                {reviews.totalCount} reviews
+                                            </a>
                                         </div>
-                                        <p className="sr-only">{reviews.average} out of 5 stars</p>
-                                        <a href={reviews.href} className="ml-3 text-sm font-medium text-indigo-600 hover:text-indigo-500">
-                                            {reviews.totalCount} reviews
-                                        </a>
+                                    </div>
+                                </div>}
+
+                            </>
+                            <div className="mb-4">
+                                {isPending ? <><div className="skeleton w-8 h-3"></div></> : <>
+                                    <h2 className="sr-only">Product information</h2>
+                                    <div className="space-x-3 border-y border-gray-200 py-3 flex items-end flex-nowrap">
+                                        {data?.discountedPrice ? (
+                                            <>
+                                                <span className='text-2xl sm:text-3xl font-bold text-main'>${data?.discountedPrice}</span>
+                                                <span className='text-lg sm:text-xl line-through text-[#90908e]'>${data?.price}</span>
+                                            </>
+                                        ) : (
+                                            <span className='text-2xl sm:text-3xl font-bold text-main'>${data?.price}</span>
+                                        )}
+                                    </div>
+                                </>}
+                            </div>
+                            {isPending ? <div className='space-y-2'>
+                                <div className="skeleton w-full h-2"></div>
+                                <div className="skeleton w-9/12 h-2"></div>
+                                <div className="skeleton w-7/12 h-2"></div>
+                                <div className="skeleton w-5/12 h-2"></div>
+                            </div> : <>
+                                {/* Description and details */}
+                                <div>
+                                    <h3 className="sr-only">Description</h3>
+
+                                    <div className="space-y-6">
+                                        <p className="text-base text-gray-900">{data?.shortDescription}</p>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="mb-4">
-                                <h2 className="sr-only">Product information</h2>
-                                <div className="space-x-3 border-y border-gray-200 py-3 flex items-end flex-nowrap">
-                                    {data?.discountedPrice ? (
-                                        <>
-                                            <span className='text-2xl sm:text-3xl font-bold text-main'>${data?.discountedPrice}</span>
-                                            <span className='text-lg sm:text-xl line-through text-[#90908e]'>${data?.price}</span>
-                                        </>
-                                    ) : (
-                                        <span className='text-2xl sm:text-3xl font-bold text-main'>${data?.price}</span>
-                                    )}
-                                </div>
-                            </div>
-                            {/* Description and details */}
-                            <div>
-                                <h3 className="sr-only">Description</h3>
-
-                                <div className="space-y-6">
-                                    <p className="text-base text-gray-900">{data.shortDescription}</p>
-                                </div>
-                            </div>
+                            </>}
                             <div className="mt-8">
-                                <div className='space-y-2'>
-                                    <span className='flex flex-nowrap items-center gap-2'>
-                                        <PiCrownSimple />
-                                        <p> 1 Year AL Jazeera Brand Warranty</p>
-                                    </span>
-                                    <span className='flex flex-nowrap items-center gap-2'>
-                                        <BsArrowRepeat />
-                                        <p>
-                                            30 Day Return Policy
-                                        </p>
-                                    </span>
-                                    <span className='flex flex-nowrap items-center gap-2'>
-                                        <IoCardOutline />
-                                        <p>
-                                            Cash on Delivery available
-                                        </p>
-                                    </span>
-                                </div>
+                                {isPending ? <div className='space-y-2'>
+                                    <div className="skeleton w-7/12 h-2"></div>
+                                    <div className="skeleton w-7/12 h-2"></div>
+                                    <div className="skeleton w-7/12 h-2"></div>
+                                </div> : <>
+                                    <div className='space-y-2'>
+                                        <span className='flex flex-nowrap items-center gap-2'>
+                                            <PiCrownSimple />
+                                            <p> 1 Year AL Jazeera Brand Warranty</p>
+                                        </span>
+                                        <span className='flex flex-nowrap items-center gap-2'>
+                                            <BsArrowRepeat />
+                                            <p>
+                                                30 Day Return Policy
+                                            </p>
+                                        </span>
+                                        <span className='flex flex-nowrap items-center gap-2'>
+                                            <IoCardOutline />
+                                            <p>
+                                                Cash on Delivery available
+                                            </p>
+                                        </span>
+                                    </div>
+                                </>}
                             </div>
 
-                            <form className="mt-10">
+                            <div className="mt-10">
                                 {/* Colors */}
                                 <div className='flex items-center gap-5 sr-only'>
                                     <h3 className="text-sm font-medium text-gray-900">Color</h3>
@@ -176,10 +211,10 @@ export default function ProductSingle() {
                                     <RadioGroup value={selectedColor} onChange={setSelectedColor} className="">
                                         <RadioGroup.Label className="sr-only">Choose a color</RadioGroup.Label>
                                         <div className="flex items-center space-x-3">
-                                            {product.colors.map((color) => (
+                                            {product.colors?.map((color) => (
                                                 <RadioGroup.Option
                                                     key={color?.name}
-                                                    value={color}
+                                                    defaultValue={color}
                                                     className={({ active, checked }) =>
                                                         classNames(
                                                             color.selectedClass,
@@ -217,7 +252,7 @@ export default function ProductSingle() {
                                     <RadioGroup value={selectedSize} onChange={setSelectedSize} className="mt-4">
                                         <RadioGroup.Label className="sr-only">Choose a size</RadioGroup.Label>
                                         <div className="flex items-center gap-4 ">
-                                            {product.sizes.map((size) => (
+                                            {product.sizes?.map((size) => (
                                                 <RadioGroup.Option
                                                     key={size?.name}
                                                     value={size}
@@ -294,32 +329,38 @@ export default function ProductSingle() {
                                         </button>
                                     </div>
                                     <button
-                                        type="submit"
+                                        onClick={() => handleAddToCart(data, quantity, calculateCartTotal)}
                                         className="btn btn-active btn-success text-white flex-"
                                     >
                                         Add to cart
                                     </button>
                                 </div>
-                            </form>
+                            </div>
 
                             <div className="mt-10 border-t pt-4">
-                                <div className='flex flex-col gap-1'>
-                                    <p className="text-sm tracking-tight text-gray-500">SKU: <span className='text-main font-medium'>{data.sku}</span></p>
-                                    <p className="text-sm tracking-tight text-gray-500">
-                                        Category: <span className='text-main font-medium'>
-                                            {data.category?.name}
-                                            {data.subcategory ? `, ${data.subcategory.name}` : ''}
-                                        </span>
-                                    </p>
+                                {isPending ? <div className='space-y-3'>
+                                    <div className="skeleton w-2/6 h-2"></div>
+                                    <div className="skeleton w-2/6 h-2"></div>
+                                    <div className="skeleton w-2/6 h-2"></div>
+                                </div> : <>
+                                    <div className='flex flex-col gap-1'>
+                                        <p className="text-sm tracking-tight text-gray-500">SKU: <span className='text-main font-medium'>{data?.sku}</span></p>
+                                        <p className="text-sm tracking-tight text-gray-500">
+                                            Category: <span className='text-main font-medium'>
+                                                {data?.category?.name}
+                                                {data?.subcategory ? `, ${data?.subcategory?.name}` : ''}
+                                            </span>
+                                        </p>
 
-                                    <p className="text-sm tracking-tight text-gray-500">
-                                        Availability:
-                                        <span className={`font-medium ${data.stock > 0 ? 'text-main' : 'text-red-500'}`}>
-                                            {data.stock > 0 ? ` ${data.stock} Items In Stock` : 'Out of Stock'}
-                                        </span>
-                                    </p>
+                                        <p className="text-sm tracking-tight text-gray-500">
+                                            Availability:
+                                            <span className={`font-medium ${data?.stock > 0 ? 'text-main' : 'text-red-500'}`}>
+                                                {data?.stock > 0 ? ` ${data?.stock} Items In Stock` : 'Out of Stock'}
+                                            </span>
+                                        </p>
 
-                                </div>
+                                    </div>
+                                </>}
                             </div>
                         </div>
 
@@ -329,7 +370,7 @@ export default function ProductSingle() {
                     </div>
                 </div>
                 <div className=''>
-                    <RelatedProduct showItem={4} />
+                    <RelatedProduct data={data} showItem={4} />
                 </div>
 
                 <div className="hidden sm:block py-9">

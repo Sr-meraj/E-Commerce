@@ -1,19 +1,21 @@
 import React from 'react';
 import { TbShoppingBagPlus } from "react-icons/tb";
 import { Link } from 'react-router-dom';
+import { useAuthContext } from '../../provider/AuthProvider';
+import { calculateCartTotal, handleAddToCart } from '../../utility/cart-action';
 import { truncateText } from '../../utility/truncateText';
 import CustomRating from '../Rating/Rating';
 
-
 export default function ProductCard({ item }) {
+    const { currentUser, loading } = useAuthContext()
     const iscreateProduct = () => {
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
         const creationDate = new Date(item?.createdAt);
         return creationDate >= oneWeekAgo;
     };
-    const percentage = ((item?.price - item?.discountedPrice) / item?.price) * 100
 
+    const percentage = ((item?.price - item?.discountedPrice) / item?.price) * 100
     return (
         <>
             <div className="card w-full bg-white group/card rounded-3xl border-[1px]  hover:shadow-lg">
@@ -86,7 +88,7 @@ export default function ProductCard({ item }) {
 
                     {/* product action */}
                     <div className="absolute right-5 bottom-4 tooltip tooltip-success before:bg-main before:text-white before:text-[12px] after:border-t-main" data-tip="Add To Cart">
-                        <button className="btn btn-circle min-h-10 h-10 w-10 bg-[#e8f6ea]  hover:bg-main border-[#cce7d0] hover:text-white">
+                        <button className="btn btn-circle min-h-10 h-10 w-10 bg-[#e8f6ea]  hover:bg-main border-[#cce7d0] hover:text-white" onClick={() => handleAddToCart(item, 1, calculateCartTotal)}>
                             <TbShoppingBagPlus size={16} />
                         </button>
                     </div>

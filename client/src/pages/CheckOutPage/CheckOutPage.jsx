@@ -4,7 +4,6 @@ import InputText from "../../Component/input/InputText";
 const CheckOutPage = (props) => {
     const [checked, setChecked] = useState(false)
 
-    console.log(checked);
     return (
         <section className="container mx-auto px-2 py-4">
             <div className="grid grid-cols-2 gap-10 font-[poppins] py-12 px-8">
@@ -33,7 +32,7 @@ const CheckOutPage = (props) => {
                         </div>
                         <div className="form-control py-2">
                             <label className="cursor-pointer label justify-start gap-3">
-                                <input type="checkbox" className="checkbox checkbox-success checkbox-sm" onChange={() => console.log(setChecked(!checked))} />
+                                <input type="checkbox" className="checkbox checkbox-success checkbox-sm" onChange={() => setChecked(!checked)} />
                                 <span className="label-text">Ship to a different address?</span>
                             </label>
                         </div>
@@ -134,7 +133,7 @@ const CheckOutPage = (props) => {
                                 <div>
                                     <div className="form-control">
                                         <label className="label cursor-pointer justify-start gap-4">
-                                            <input type="radio" name="payment" className="radio radio-success" checked />
+                                            <input type="radio" name="payment" className="radio radio-success" defaultChecked />
                                             <span className="label-text">Cash on delivery</span>
                                         </label>
                                     </div>

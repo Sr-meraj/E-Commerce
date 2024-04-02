@@ -1,5 +1,5 @@
 import { Dialog, Popover, Tab, Transition } from '@headlessui/react';
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 
 import { FiUser } from "react-icons/fi";
 import { HiBars3, HiMiniMagnifyingGlass, HiMiniXMark, HiOutlineShoppingBag } from "react-icons/hi2";
@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 import logo from '../assets/logo.svg';
 import { navigation } from '../config/NavigationData';
 import { useAuthContext } from '../provider/AuthProvider';
+import CartSideBar from './cart/CartSideBar';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -16,11 +17,13 @@ function classNames(...classes) {
 
 export default function Navigation() {
     const [open, setOpen] = useState(false)
+    const [cartItems, setCartItems] = useState()
     const { currentUser, logout, setUser } = useAuthContext()
 
     const Logout = async () => {
         const res = await logout();
-        if (res.success) {
+        console.log(res);
+        if (res?.success) {
             localStorage.removeItem('access_token');
             setUser(null);
             toast.success(`${res.message}`);
@@ -28,6 +31,29 @@ export default function Navigation() {
             toast.error(res.error);
         }
     }
+
+    useEffect(() => {
+        const handleStorageChange = () => {
+            // Update cart items when local storage changes
+            setCartItems(JSON.parse(localStorage.getItem('CART_ITEMS')) || []);
+        };
+
+        // Listen for storage events
+        window.addEventListener('storage', handleStorageChange);
+
+        // Initial fetch of cart items from local storage
+        setCartItems(JSON.parse(localStorage.getItem('CART_ITEMS')) || []);
+
+        document.addEventListener("click", handleStorageChange);
+
+        // Clean up event listener on component unmount
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+            document.removeEventListener("click", handleStorageChange);
+
+        };
+    }, []);
+
 
 
     return (
@@ -145,7 +171,7 @@ export default function Navigation() {
 
                                 <div className="space-y-6 border-t border-gray-200 px-4 py-6">
                                     <div className="flow-root">
-                                        {currentUser ? (<span className="-m-2 block p-2 font-medium text-gray-900"> Logout </span>) : (<Link to={"/my-account"} className="-m-2 block p-2 font-medium text-gray-900">
+                                        {currentUser ? (<span className="-m-2 block p-2 font-medium text-gray-900"> Logout </span>) : (<Link to={"/account"} className="-m-2 block p-2 font-medium text-gray-900">
                                             Sign in
                                         </Link>)}
                                     </div>
@@ -299,15 +325,17 @@ export default function Navigation() {
 
                                 {/* Cart */}
                                 <div className="flow-root">
-                                    <Link to={'/cart'} className="group indicator">
+                                    <label htmlFor="my-drawer-4" className="group indicator cursor-pointer">
                                         <span className="sr-only indicator-item badge badge-success text-white px-1.5 text-xs">0</span>
                                         <HiOutlineShoppingBag
                                             className="h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
                                             aria-hidden="true"
                                         />
-                                        <span className=" ml-1 text-sm font-medium text-gray-700 group-hover:text-gray-800">0</span>
+                                        <span className=" ml-1 text-sm font-medium text-gray-700 group-hover:text-gray-800">{cartItems?.length}</span>
                                         <span className="sr-only">items in cart, view bag</span>
-                                    </Link>
+                                    </label>
+                                    <CartSideBar />
+
                                 </div>
                                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
 
@@ -333,14 +361,18 @@ export default function Navigation() {
                                                 </div>
                                                 <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
                                                     <li>
-                                                        <span className="text-sm font-medium text-gray-700 hover:text-gray-800">
-                                                            My Account
-                                                        </span>
+                                                        <Link to='/dashboard'>
+                                                            <span className="text-sm font-medium text-gray-700 hover:text-gray-800">
+                                                                My Account
+                                                            </span>
+                                                        </Link>
                                                     </li>
                                                     <li>
-                                                        <span className="text-sm font-medium text-gray-700 hover:text-gray-800">
-                                                            Orders
-                                                        </span>
+                                                        <Link to='/dashboard/my-order'>
+                                                            <span className="text-sm font-medium text-gray-700 hover:text-gray-800">
+                                                                Orders
+                                                            </span>
+                                                        </Link>
                                                     </li>
                                                     <li onClick={Logout}>
                                                         <span className="text-sm font-medium text-gray-700 hover:text-gray-800"> Logout </span>
@@ -348,7 +380,7 @@ export default function Navigation() {
                                                 </ul>
                                             </div>
                                         )
-                                        : (<Link to={"/my-account"} className="text-sm font-medium p-2 text-gray-400 hover:text-gray-500">
+                                        : (<Link to={"/account"} className="text-sm font-medium p-2 text-gray-400 hover:text-gray-500">
                                             <FiUser className="h-5 w-5" />
                                         </Link>)
                                     }
@@ -360,4 +392,4 @@ export default function Navigation() {
             </header>
         </div>
     )
-}
+};

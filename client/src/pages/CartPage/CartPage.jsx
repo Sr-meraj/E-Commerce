@@ -1,8 +1,37 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { IoIosClose } from "react-icons/io";
 import CartItem from "../../Component/cart/CartItem";
+import { calculateCartTotal, clearCart } from "../../utility/cart-action";
 
 const CartPage = () => {
+    const [cartItems, setCartItems] = useState([]);
+    const [cartTotal, setCartTotal] = useState(0);
+    const [cartId, setCartId] = useState('');
+
+    const handleCart = () => {
+        const storedCartItems = JSON.parse(localStorage.getItem('CART_ITEMS'));
+        const storedCartTotal = localStorage.getItem('CART_TOTAL');
+        const storedCartId = localStorage.getItem("CART_ID");
+
+        if (storedCartItems) {
+            setCartItems(storedCartItems);
+            setCartTotal(storedCartTotal);
+            setCartId(storedCartId);
+            calculateCartTotal(); // This might need adjustments depending on its functionality
+        }
+    };
+    useEffect(() => {
+        const handleDrawerOpen = () => {
+            handleCart();
+        };
+
+        document.addEventListener("click", handleDrawerOpen);
+
+        return () => {
+            document.removeEventListener("click", handleDrawerOpen);
+        };
+    }, []);
+
     return (
         <>
             <section>
@@ -14,28 +43,30 @@ const CartPage = () => {
 
                         <div className="mt-8 grid grid-cols-3 gap-10">
                             <ul className="space-y-4 col-span-2 border rounded-lg py-4 px-6">
-                                {
-                                    [1, 2, 3, 4, 5].map(item => (<>
-                                        <Fragment key={item}>
-                                            <CartItem />
+                                {cartItems.length === 0 ? (
+                                    <p className="text-center">No items in the cart.</p>
+                                ) : (
+                                    cartItems.map(item => (<>
+                                        <Fragment key={item._id}>
+                                            <CartItem item={item} />
                                         </Fragment>
-                                    </>))
+                                    </>)))
                                 }
                                 <div className="float-end">
-                                    <button className='link link-hover link-success flex  justify-center items-center' >
+                                    <button className='link link-hover link-success flex  justify-center items-center' onClick={() => clearCart(setCartItems, setCartTotal, setCartId)}>
                                         <IoIosClose size={20} className='mt-1' />
                                         Clear cart
                                     </button>
                                 </div>
                             </ul>
 
-                            <div className=" flex justify-end bg-gray-50 max-h-80 min-h-80 rounded-lg px-6 py-4 border-t border-gray-100 ">
+                            <div className=" flex justify-end bg-gray-50 max-h-[22rem] min-h-[22rem] rounded-lg px-6 py-4 border-t border-gray-100 ">
                                 <div className="w-full space-y-4">
                                     <h4 className="font-semibold card-title">Order summary</h4>
                                     <dl className="space-y-4 text-sm text-gray-700">
                                         <div className="flex justify-between">
                                             <dt>Subtotal</dt>
-                                            <dd>£250</dd>
+                                            <dd>{cartTotal} BDT</dd>
                                         </div>
 
                                         <div className="flex justify-between">
@@ -54,7 +85,7 @@ const CartPage = () => {
 
                                         <div className="flex justify-between !text-base font-medium">
                                             <dt>Total</dt>
-                                            <dd>£200</dd>
+                                            <dd>{cartTotal} BDT</dd>
                                         </div>
                                     </dl>
 

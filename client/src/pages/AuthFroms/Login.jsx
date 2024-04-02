@@ -47,7 +47,11 @@ const Login = () => {
                 // set access token to the localstorage
                 localStorage.setItem('access_token', result?.accessToken)
                 setUser(result?.user)
-                navigate(form, { replace: true })
+                if (result?.user) {
+                    navigate('/dashboard', { replace: true })
+                } else {
+                    navigate(form, { replace: true })
+                }
             } else {
                 toast.error('Failed to login! Please try again later.');
             }

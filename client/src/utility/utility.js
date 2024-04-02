@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -25,3 +26,9 @@ export const updateFilter = (searchParams, sectionId, value) => {
 
     return searchParams.toString();
 };
+
+
+// Create an Axios instance with a base URL
+export const axiosInstance = axios.create({
+  baseURL: 'http://localhost:4000/api/v1/', // Replace with your base URL
+});

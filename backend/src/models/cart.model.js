@@ -12,9 +12,15 @@ const CartItem = new Schema(
         required: true,
         min: 1
       },
-      price: {
+      purchasePrice: {
         type: Number,
-        required: true
+        default: 0
+      },
+       totalPrice: {
+        type: Number,
+        default: function() {
+          return this.quantity * this.purchasePrice;
+        }
       }
 }
 )
@@ -31,6 +37,4 @@ const CartSchema = new Schema(
     { timestamps: true }
 );
 
-const Cart = mongoose.model('Cart', CartSchema);
-
-module.exports = Cart;
+export const Cart = mongoose.model('Cart', CartSchema);

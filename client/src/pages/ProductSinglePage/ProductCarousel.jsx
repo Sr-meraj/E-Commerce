@@ -6,8 +6,8 @@ import './productCarousel.css';
 
 
 const thumbItems = (items, [setThumbIndex, setThumbAnimation]) => {
-    return items.map((item, i) => (
-        <div className="thumb max-w-28  w-full  px-2 -ml-3 active:border-4" onClick={() => (setThumbIndex(i), setThumbAnimation(true))}>
+    return items?.map((item, i) => (
+        <div key={i} className="thumb max-w-28  w-full  px-2 -ml-3 active:border-4" onClick={() => (setThumbIndex(i), setThumbAnimation(true))}>
             {item}
         </div>
     ));

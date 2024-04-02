@@ -4,8 +4,9 @@ import useDataMutation from '../hook/useDataMutation';
 export const AuthContext = createContext(null);
 
 const AuthProvider = ({ children }) => {
+    const { postData, putData, loading, error, getData } = useDataMutation();
+
     const [currentUser, setCurrentUser] = useState(null);
-    const { loading, error, postData, putData, getData } = useDataMutation();
 
     const Login = async (email, password) => {
         return await postData('users/login', { email, password });
@@ -24,32 +25,53 @@ const AuthProvider = ({ children }) => {
     };
 
     const logoutUser = async () => {
-        return await getData('users/logout', {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-            }
-        });
+        try {
+            const userToken = localStorage.getItem('access_token');
+            // if (!userToken) throw new Error("Access token not found in local storage");
+
+            await getData('users/logout', {
+                headers: {
+                    'Authorization': `Bearer ${userToken}`
+                }
+            });
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     useEffect(() => {
         const getUserData = async () => {
             try {
+                const userToken = localStorage.getItem('access_token');
+                if (!userToken) throw new Error("Access token not found in local storage");
+
                 const userData = await getData('users/current-user', {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                        'Authorization': `Bearer ${userToken}`
                     }
                 });
-                if (!userData?.success) throw new Error("Could not retrieve user information");
-                setCurrentUser(userData?.data);
+
+                if (!userData || !userData.success) throw new Error("Could not retrieve user information");
+
+                setCurrentUser(userData.data);
             } catch (error) {
                 console.log(error);
             }
         };
-
         getUserData();
     }, []);
 
-    const authInfo = { currentUser, Login, logout: logoutUser, createAccount, updateAccountInfo, updateAccountAvatar, loading, error, setUser: setCurrentUser };
+    const authInfo = {
+        currentUser,
+        Login,
+        loading,
+        error,
+        logout: logoutUser,
+        createAccount,
+        updateAccountInfo,
+        updateAccountAvatar,
+        setUser: setCurrentUser
+    };
 
     return (
         <AuthContext.Provider value={authInfo}>
