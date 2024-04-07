@@ -18,6 +18,7 @@ const Login = () => {
 
     const initialValues = { email: '', password: '', rememberMe: false, }
 
+    console.log(location)
     const validationCheck = (values) => {
         const errors = {};
 

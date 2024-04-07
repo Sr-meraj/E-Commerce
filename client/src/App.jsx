@@ -11,7 +11,6 @@ import ContactPage from './pages/contactPage/ContactPage';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Page404 from './pages/ErrorPage/Page404';
 import Home from './pages/home/Home';
-import OrderDetails from './pages/OrderPage/OrderDetails';
 import ProductSingle from './pages/ProductSinglePage/ProductSingle';
 import StorePage from './pages/shop/StorePage';
 import PrivateRoute from './route/PrivateRoute';
@@ -68,12 +67,8 @@ function App() {
                 />
                 <Route path="checkout" element={<CheckOutPage />} />
                 <Route path="account" element={<PublicRoute><AuthLayout /></PublicRoute>} />
-                <Route path="dashboard//*" element={<PrivateRoute><Dashboard /></PrivateRoute>}>
-                  <Route
-                    path="my-order"
-                    element={<PrivateRoute><OrderDetails /></PrivateRoute>}
-                  />
-                </Route>
+                <Route path="dashboard/*" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+                <Route path='support' element={<p>Support</p>} />
 
               </Route>
             </Routes>

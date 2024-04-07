@@ -1,12 +1,16 @@
 import { Fragment, useEffect, useState } from "react";
 import { IoIosClose } from "react-icons/io";
+import { Link, useNavigate } from "react-router-dom";
 import CartItem from "../../Component/cart/CartItem";
+import { useAuthContext } from "../../provider/AuthProvider";
 import { calculateCartTotal, clearCart } from "../../utility/cart-action";
 
 const CartPage = () => {
     const [cartItems, setCartItems] = useState([]);
     const [cartTotal, setCartTotal] = useState(0);
     const [cartId, setCartId] = useState('');
+    const { currentUser } = useAuthContext();
+    const navigate = useNavigate()
 
     const handleCart = () => {
         const storedCartItems = JSON.parse(localStorage.getItem('CART_ITEMS'));
@@ -113,10 +117,22 @@ const CartPage = () => {
                                     </div>
 
                                     <div className="">
-                                        <button className="btn btn-square btn-success w-full text-white"
-                                        >
-                                            Checkout
-                                        </button>
+                                        {
+                                            currentUser ? (<>
+                                                <Link
+                                                    to="/checkout"
+                                                    className="btn btn-square btn-success w-full text-white"
+                                                >
+                                                    Checkout
+                                                </Link>
+                                            </>) : (<>
+                                                <button className="btn btn-square btn-success w-full text-white"
+                                                    onClick={() => handleCheckout(navigate)}
+                                                >
+                                                    Proceed to Checkout
+                                                </button>
+                                            </>)
+                                        }
                                     </div>
                                 </div>
                             </div>

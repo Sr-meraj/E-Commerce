@@ -1,7 +1,10 @@
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import Page404 from '../../pages/ErrorPage/Page404';
+import AccountDetails from './AccountDetails/AccountDetails';
 import AccountMenu from './AccountMenu';
+import AccountSecurity from './AccountSecurity/AccountSecurity';
+import AddProduct from './AddProduct/AddProduct';
 
 const AdminLayout = ({ user, links }) => {
     return (
@@ -13,30 +16,21 @@ const AdminLayout = ({ user, links }) => {
                     </div>
                     <div className="col-span-7 md:col-span-9">
                         <div className='w-full'>
-                            <Route>
-                                <Route index element={
-                                    <div>
-                                        <h1>Dashboard</h1>
-                                        <p>Welcome to your dashboard!</p>
-                                    </div>
+                            <Routes>
+                                <Route index element={<AccountDetails />} />
+                                <Route path='security' element={
+                                    <AccountSecurity />
                                 } />
-                                <Route path='/dashboard/security' element={
-                                    <div>
-                                        <h1>Dashboard</h1>
-                                        <p>Welcome to your Security!</p>
-                                    </div>
-                                } />
-                                <Route path='/dashboard/address' element={<p>Address</p>} />
-                                <Route path='/dashboard/product' element={<p>Product</p>} />
-                                <Route path='/dashboard/category' element={<p>Category</p>} />
-                                <Route path='/dashboard/brand' element={<p>Brand</p>} />
-                                <Route path='/dashboard/users' element={<p>Users</p>} />
-                                <Route path='/dashboard/merchant' element={<p>Merchant</p>} />
-                                <Route path='/dashboard/orders' element={<p>Order</p>} />
-                                <Route path='/dashboard/review' element={<p>Review</p>} />
-                                <Route path='/dashboard/wishlist' element={<p>Wishlist</p>} />
+                                <Route path='address' element={<p>Address</p>} />
+                                <Route path='product' element={<AddProduct />} />
+                                <Route path='category' element={<p>Category</p>} />
+                                <Route path='brand' element={<p>Brand</p>} />
+                                <Route path='users' element={<p>Users</p>} />
+                                <Route path='orders' element={<p>Order</p>} />
+                                <Route path='review' element={<p>Review</p>} />
+                                <Route path='wishlist' element={<p>Wishlist</p>} />
                                 <Route path='*' element={<Page404 />} />
-                            </Route>
+                            </Routes>
                         </div>
                     </div>
                 </div>

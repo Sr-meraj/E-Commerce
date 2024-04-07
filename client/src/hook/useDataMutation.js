@@ -9,18 +9,18 @@ const useDataMutation = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const sendRequest = async (method, url, data,info) => {
-    try {
-      setLoading(true);
-      // Introduce a 1.2 seconds (1200 milliseconds) loading delay
-      await new Promise((resolve) => setTimeout(resolve, 1200));
+const sendRequest = async (method, url, data, token) => {
+  try {
+    setLoading(true);
 
-      const response = await axiosInstance({
-        method,
-        url,
-        data,
-        info
-      });
+    const response = await axiosInstance({
+      method,
+      url,
+      data,
+      headers: {
+        Authorization: `Bearer ${token}` // Include token here
+      }
+    });
 
       if (response.data && response.data.data) {
         setError(null);
@@ -37,16 +37,19 @@ const useDataMutation = () => {
     }
   };
 
-  const postData = async (url, data,info) => {
-    return await sendRequest('post', url, data, info);
+  const postData = async (url, data,token) => {
+    return await sendRequest('post', url, data, token);
   };
 
-  const putData = async (url, data, info) => {
-    return await sendRequest('put', url, data, info);
+  const putData = async (url, data, token) => {
+    return await sendRequest('put', url, data, token);
+  };
+  const patchData = async (url, data, token) => {
+    return await sendRequest('patch', url, data, token);
   };
 
-  const deleteData = async (url, info) => {
-    return await sendRequest('delete', url, info);
+  const deleteData = async (url, token) => {
+    return await sendRequest('delete', url, token);
   };
   const getData = async (url,info) => {
     try {
@@ -70,7 +73,7 @@ const useDataMutation = () => {
     }
   };
 
-  return { loading, error, postData, putData, deleteData,getData };
+  return { loading,setLoading, error,patchData, postData, putData, deleteData,getData };
 };
 
 export default useDataMutation;

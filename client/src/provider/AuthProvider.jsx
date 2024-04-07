@@ -4,7 +4,7 @@ import useDataMutation from '../hook/useDataMutation';
 export const AuthContext = createContext(null);
 
 const AuthProvider = ({ children }) => {
-    const { postData, putData, loading, error, getData } = useDataMutation();
+    const { postData, putData, setLoading, loading, error, getData } = useDataMutation();
 
     const [currentUser, setCurrentUser] = useState(null);
 
@@ -17,11 +17,28 @@ const AuthProvider = ({ children }) => {
     };
 
     const updateAccountInfo = async (data) => {
-        return await putData(`users/update-account`, data);
+        const userToken = localStorage.getItem('access_token');
+        if (!userToken) throw new Error("Access token not found in local storage");
+        setLoading(true)
+        const res = await putData(`users/update-account`, data, userToken);
+        setCurrentUser(res);
+        setLoading(false)
+        return res
     };
 
     const updateAccountAvatar = async (data) => {
         return await putData(`users/update-avatar`, data);
+    };
+
+    const ChangePassword = async (data) => {
+        const userToken = localStorage.getItem('access_token');
+        if (!userToken) throw new Error("Access token not found in local storage");
+        return await putData(`users/change-password`, data, {
+            headers: {
+                'Authorization': `Bearer ${userToken}`
+            }
+        });
+
     };
 
     const logoutUser = async () => {
@@ -29,7 +46,7 @@ const AuthProvider = ({ children }) => {
             const userToken = localStorage.getItem('access_token');
             // if (!userToken) throw new Error("Access token not found in local storage");
 
-            await getData('users/logout', {
+            return await getData('users/logout', {
                 headers: {
                     'Authorization': `Bearer ${userToken}`
                 }
@@ -43,7 +60,7 @@ const AuthProvider = ({ children }) => {
         const getUserData = async () => {
             try {
                 const userToken = localStorage.getItem('access_token');
-                if (!userToken) throw new Error("Access token not found in local storage");
+                if (!userToken) return;
 
                 const userData = await getData('users/current-user', {
                     headers: {
@@ -51,6 +68,7 @@ const AuthProvider = ({ children }) => {
                     }
                 });
 
+                console.log(userData);
                 if (!userData || !userData.success) throw new Error("Could not retrieve user information");
 
                 setCurrentUser(userData.data);
@@ -63,6 +81,7 @@ const AuthProvider = ({ children }) => {
 
     const authInfo = {
         currentUser,
+        ChangePassword,
         Login,
         loading,
         error,

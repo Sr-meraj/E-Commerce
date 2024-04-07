@@ -70,7 +70,7 @@ function StorePage() {
         price: [],
         discount: [],
     });
-    const [itemsPerPage, setItemsPerPage] = useState(3);
+    const [itemsPerPage, setItemsPerPage] = useState(6);
     const [currentPage, setCurrentPage] = useState(0);
     const [priceSort, setPriceSort] = useState('');
     const catApiUrl = `categories`;
@@ -85,13 +85,13 @@ function StorePage() {
     const apiUrl = `products?${priceSort && `sort=price&order=${priceSort}&`}limit=${itemsPerPage}&page=${currentPage}&price=${initialFilters.price}${selectedCategoryId ? `&category=${selectedCategoryId}` : ''}`
 
     const { data, loading, error } = useDataFetching(apiUrl);
-    const totalPages = Math.ceil(data.totalProducts / itemsPerPage);
+    const totalPages = Math.ceil(data?.totalProducts / itemsPerPage);
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
     };
 
-    const options = [3, 9, 15, 20, 30];
+    const options = [6, 9, 15, 20, 30];
     const handleItemsPerPageChange = (event) => {
         setItemsPerPage(parseInt(event.target.value));
         setCurrentPage(0);
@@ -271,7 +271,6 @@ function StorePage() {
                                 <select value={itemsPerPage}
                                     onChange={handleItemsPerPageChange}
                                     className="select select-bordered w-full max-w-32 rounded-full">
-                                    <option selected disabled>Items</option>
                                     {options?.map((option) => (
                                         <option key={option} value={option}>
                                             {option} items

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../provider/AuthProvider";
-import { handleCart, handleCheckout, handleRemoveFromCart } from "../../utility/cart-action";
+import { handleCart, handleCheckout, handleRemoveFromCart, handleShopping } from "../../utility/cart-action";
 
 const CartSideBar = () => {
     const [cartItems, setCartItems] = useState([]);
@@ -36,10 +36,10 @@ const CartSideBar = () => {
                 <input id="my-drawer-4" type="checkbox" className="drawer-toggle" defaultChecked={isOpen} onChange={toggleSidebar} />
                 <div className="drawer-content"></div>
                 <div className="drawer-side overflow-x-hidden overflow-y-auto">
-                    <label htmlFor="my-drawer-4" aria-label="close sidebar" className="drawer-overlay"></label>
+                    <label htmlFor="my-drawer-4" aria-label="close sidebar" onClick={toggleSidebar} className="drawer-overlay"></label>
                     <ul className="p-4 w-80 min-h-full bg-base-200 text-base-content">
                         <div>
-                            <label className="absolute end-4 top-4 text-gray-600 transition hover:scale-110 cursor-pointer" htmlFor="my-drawer-4">
+                            <label className="absolute end-4 top-4 text-gray-600 transition hover:scale-110 cursor-pointer" htmlFor="my-drawer-4" onClick={toggleSidebar}>
                                 <span className="sr-only">Close cart</span>
 
                                 <svg
@@ -117,7 +117,7 @@ const CartSideBar = () => {
 
                                     <span
                                         className="cursor-pointer inline-block text-sm text-gray-500 underline underline-offset-4 transition hover:text-gray-600"
-                                        onClick={toggleSidebar} // Close sidebar when "Continue Shopping" is clicked
+                                        onClick={() => handleShopping(navigate)} // Close sidebar when "Continue Shopping" is clicked
                                     >
                                         Continue shopping
                                     </span>

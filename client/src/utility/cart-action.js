@@ -89,7 +89,12 @@ export const handleCart = (setCartItems,setCartTotal,setCartId) => {
         calculateCartTotal(); // This might need adjustments depending on its functionality
     }
   };
-
+export const toggleSidebar = () => {
+        document.getElementById('my-drawer-4').click();
+        // setIsOpen(!isOpen); // Toggle isOpen state
+  console.log('clicked');
+};
+    
 export const handleCheckout = (navigate,toggleSidebar) => {
     const successfulOptions = {
       title: `Please Login to proceed to checkout`,
@@ -104,8 +109,8 @@ export const handleCheckout = (navigate,toggleSidebar) => {
 
 // Continue shopping use case
 export const handleShopping = (navigate) => {
-    navigate('/shop');
-    // toggleCart();
+  navigate('/shop');
+    toggleSidebar()
   };
 
 // create cart id api
@@ -116,7 +121,7 @@ export const getCartId = async () => {
       const products = getCartItems(cartItems);
 
       if (!cartId) {
-        const response = await postData(`${API_URL}/cart/add`, { products });
+        const response = await postData(`cart/add`, { products });
         setCartIdLocally(response.data.cartId);
       }
     } catch (error) {
@@ -157,6 +162,7 @@ export const getCartItems = (cartItems) => {
   cartItems.map(item => {
     const newItem = {};
     newItem.quantity = item.quantity;
+    newItem.productId = item._id;
       newItem.purchasedPrice = item?.discountedPrice ? item?.discountedPrice : item?.price;
     newItem.totalPrice = item.totalPrice;
     newItem.taxable = item?.taxable;

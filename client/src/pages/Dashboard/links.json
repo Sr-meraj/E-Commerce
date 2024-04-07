@@ -1,6 +1,6 @@
 {
   "ADMIN": [
-    { "to": "", "name": "Account Details", "prefix": "/dashboard" },
+    { "to": "/dashboard", "name": "Account Details", "prefix": "" },
     {
       "to": "/security",
       "name": "Account Security",

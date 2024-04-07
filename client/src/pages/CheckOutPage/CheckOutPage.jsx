@@ -1,8 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import InputText from "../../Component/input/InputText";
+import { handleCart } from "../../utility/cart-action";
 
 const CheckOutPage = (props) => {
     const [checked, setChecked] = useState(false)
+    const [cartItems, setCartItems] = useState("")
+    const [cartTotal, setCartTotal] = useState("")
+    const [cartId, setCartId] = useState("")
+
+    useEffect(() => {
+        handleCart(setCartItems, setCartTotal, setCartId);
+    }, []);
 
     return (
         <section className="container mx-auto px-2 py-4">
@@ -77,24 +85,25 @@ const CheckOutPage = (props) => {
                                 </thead>
                                 <tbody>
                                     {
-                                        [1, 2, 3, 4].map(item => (
-                                            <tr key={item}>
+                                        cartItems?.length !== 0 && cartItems.map(item => (
+                                            <tr key={item._id}>
                                                 <td>
                                                     <div className="flex items-center gap-3">
                                                         <div className="avatar">
                                                             <div className="rounded w-20 ">
-                                                                <img src="https://res.cloudinary.com/dkuwlnejd/image/upload/v1707581286/Ecommerce/product-6-2_u0ygxb.jpg" alt="product" />
+                                                                <img src={item.productImages && item.productImages.length > 0 ? item.productImages[0] : ''}
+                                                                    alt={item?.title} />
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td>
                                                     <h4>
-                                                        Yidarton Women Summer Blue
+                                                        {item?.title}
                                                     </h4>
-                                                    x 2
+                                                    x {item?.quantity}
                                                 </td>
-                                                <td>$640</td>
+                                                <td>{item.discountedPrice ? item.discountedPrice : item.price} BDT</td>
                                             </tr>
                                         ))
 
@@ -104,7 +113,7 @@ const CheckOutPage = (props) => {
                                             SubTotal
                                         </td>
                                         <td>
-                                            $1250.34
+                                            {cartTotal} BDT
                                         </td>
                                     </tr>
                                     <tr>
@@ -120,7 +129,7 @@ const CheckOutPage = (props) => {
                                             Total
                                         </td>
                                         <td>
-                                            $1250.34
+                                            {cartTotal} BDT
                                         </td>
                                     </tr>
                                 </tbody>
@@ -137,7 +146,7 @@ const CheckOutPage = (props) => {
                                             <span className="label-text">Cash on delivery</span>
                                         </label>
                                     </div>
-                                    <div className="form-control">
+                                    <div className="form-control sr-only">
                                         <label className="label cursor-pointer justify-start gap-4">
                                             <input type="radio" name="payment" className="radio radio-success" />
                                             <span className="label-text">Credit card</span>

@@ -32,7 +32,8 @@ const useDataFetching = (url) => {
 
    const { isPending, error, data } = useQuery({
       queryKey: ['Data', url],
-      queryFn: async () => {
+     queryFn: async () => {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         const { data } = await axiosInstance.get(url)
         if (data.success) {
             return data.data;
