@@ -29,7 +29,7 @@ router.route('/logout').get(verifyJWT, logout)
 router.route('/refresh-token').post(refreshAccessToken)
 router.route('/change-password').put(verifyJWT, changeCurrentPassword)
 router.route('/current-user').get(verifyJWT, getCurrentUser)
-router.route('/update-account').patch(verifyJWT, changeAccountDetails)
+router.route('/update-account').put(verifyJWT, changeAccountDetails)
 router.route('/update-avatar').patch(verifyJWT, upload.single("avatar"), updateUserAvatar)
 
 router.route('/').get(verifyJWT, adminCheck, getAllUser)
