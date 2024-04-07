@@ -12,7 +12,7 @@ const CartItem = new Schema(
         required: true,
         min: 1
       },
-      purchasePrice: {
+      purchasedPrice: {
         type: Number,
         default: 0
       },
@@ -32,7 +32,7 @@ const CartSchema = new Schema(
             ref: 'User',
             required: true
         },
-        items: [CartItem]
+        products: [CartItem]
     },
     { timestamps: true }
 );
