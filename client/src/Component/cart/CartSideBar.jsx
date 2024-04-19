@@ -36,10 +36,10 @@ const CartSideBar = () => {
                 <input id="my-drawer-4" type="checkbox" className="drawer-toggle" defaultChecked={isOpen} onChange={toggleSidebar} />
                 <div className="drawer-content"></div>
                 <div className="drawer-side overflow-x-hidden overflow-y-auto">
-                    <label htmlFor="my-drawer-4" aria-label="close sidebar" onClick={toggleSidebar} className="drawer-overlay"></label>
+                    <label htmlFor="my-drawer-4" aria-label="close sidebar" className="drawer-overlay"></label>
                     <ul className="p-4 w-80 min-h-full bg-base-200 text-base-content">
                         <div>
-                            <label className="absolute end-4 top-4 text-gray-600 transition hover:scale-110 cursor-pointer" htmlFor="my-drawer-4" onClick={toggleSidebar}>
+                            <label className="absolute end-4 top-4 text-gray-600 transition hover:scale-110 cursor-pointer" htmlFor="my-drawer-4">
                                 <span className="sr-only">Close cart</span>
 
                                 <svg
@@ -100,12 +100,19 @@ const CartSideBar = () => {
                                     {
                                         currentUser ? (<>
                                             <Link
+                                                to="/order"
+                                                className="block rounded bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600"
+                                                onClick={toggleSidebar} // Close sidebar when "Checkout" is clicked
+                                            >
+                                                Place Order
+                                            </Link>
+                                            {/* <Link
                                                 to="/checkout"
                                                 className="block rounded bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600"
                                                 onClick={toggleSidebar} // Close sidebar when "Checkout" is clicked
                                             >
                                                 Checkout
-                                            </Link>
+                                            </Link> */}
                                         </>) : (<>
                                             <button className="btn btn-square btn-success w-full text-white"
                                                 onClick={() => handleCheckout(navigate, toggleSidebar)}

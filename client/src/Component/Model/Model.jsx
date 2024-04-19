@@ -23,6 +23,7 @@ const Modal = ({ id, title, children }) => {
                     </div>
                     {/* Modal title */}
                     <h3 className="font-bold text-lg">{title}</h3>
+                    <div className='divider'></div>
                     {/* Modal content */}
                     <div className="modal-content">{children}</div>
 

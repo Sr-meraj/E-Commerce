@@ -3,31 +3,44 @@ import { useState } from "react";
 import { toast } from 'react-toastify';
 import useDataFetching from "../../../hook/useDataFatching";
 import { useAuthContext } from "../../../provider/AuthProvider";
+import { axiosInstance } from "../../../utility/utility";
 import Modal from "../../Model/Model";
-import Table from "../../Table/Table";
+import ProductManage from "./ProductManage";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
 const AddProduct = () => {
-    const [itemsPerPage, setItemsPerPage] = useState(6);
-    const [currentPage, setCurrentPage] = useState(0);
+    const [subCategories, setSubCategories] = useState([]);
+    // const apiUrl = `categories`;
+    const { data: categories, loading: isCategoryFetching, error: isCategoryError } = useDataFetching('categories');
+    const { data: brands, loading: isBrandFetching, error: isBrandError } = useDataFetching('brands');
+
     const { loading, error, currentUser, updateAccountInfo } = useAuthContext();
-    const apiUrl = `products?limit=${itemsPerPage}&page=${currentPage}`;
 
+    const initialValues = { title: '', description: '', price: '', stock: '', productImages: [], category: '', subCategory: '', discountedPrice: '', brand: '', sku: '', shortDescription: '' };
 
-    const { data, loading: isFetching, error: isError } = useDataFetching(apiUrl);
-    const totalPages = Math.ceil(data?.totalProducts / itemsPerPage);
+    // Function to fetch subcategories based on the selected category
+    const fetchSubcategories = async (categoryId) => {
+        const subCategoriesUrl = `categories/${categoryId}/subcategories`;
+        const { data } = await axiosInstance.get(subCategoriesUrl);
+        console.log(data.data);
+        setSubCategories(data?.data?.subcategories); // Update state with fetched subcategories
+    };
 
-    const handlePageChange = (page) => {
-        setCurrentPage(page);
+    // Handler for category field value change
+    const handleCategoryChange = (categoryId, handleChange) => {
+        fetchSubcategories(categoryId); // Fetch subcategories when category changes
+        // handleChange(); // Call Formik's handleChange to update form values
+        handleChange({ target: { name: 'category', value: categoryId } });
     };
 
     const onSubmit = async (values) => {
         await sleep(500);
         try {
-            const result = await updateAccountInfo(values);
+            // const result = await axiosInstance.post('products/create', values);
+            const result = values
             if (result) {
-                toast.success('Account Update successful!');
+                console.log(result);
+                toast.success('Account updated successfully!');
             } else {
                 toast.error('Failed to update! Please try again later.');
             }
@@ -37,82 +50,149 @@ const AddProduct = () => {
         }
     };
 
-
-    if (error) {
-        return <p>{error.message}</p>;
-    }
-    const initialValues = { title: '', description: '', price: '', stock: '', productImages: [], category: '', subCategory: '', discountedPrice: '', brand: '', sku: '', shortDescription: '' };
-
-
-    const tableData = data?.products?.map(product => ({
-        id: product._id,
-        title: product.title,
-        category: product.category?.name,
-        productImages: product.productImages,
-        price: product.price,
-        discountedPrice: product.discountedPrice,
-        isActive: product.isActive,
-    }));
-
-
-    const tableHeader = ["Id", "Product", "Category", "Price", "Discounted Price"];
-
-    const handleDelete = (id) => {
-        // Implement delete functionality
-        // Update tableData state accordingly
-    };
-
-    const handleEdit = (data) => {
-        // Implement edit functionality
-    };
     return (
         <div className="space-y-5">
             <div className="flex justify-between items-center border-b-2">
                 <h1 className="card-title">Add Product</h1>
-                {/* <div className="divider"></div> */}
                 <div className="overflow-hidden relative">
                     <Modal title={"Add Product"} id="my_modal_1">
                         <Formik initialValues={initialValues} onSubmit={onSubmit}>
-                            {({ errors, isSubmitting, touched, values, handleChange }) => (
+                            {({ errors, isSubmitting, touched, values, handleChange, setFieldValue, setValues }) => (
                                 <Form action="">
                                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                         <div>
-                                            <label className="form-control w-full relative" htmlFor="fullname" >
+                                            <label className="form-control w-full relative" htmlFor="title" >
                                                 <div className="label">
-                                                    <span className="label-text">Fullname</span>
+                                                    <span className="label-text">Product Title</span>
                                                 </div>
-                                                <Field id="fullname" name="fullname" value={values.fullname} onChange={handleChange} type="text" className="input focus:outline-none input-bordered w-full" />
-                                                {errors.fullname && touched.fullname && <div className="text-red-500">{errors.fullname}</div>}
+                                                <Field id="title" name="title" value={values.title} onChange={handleChange} type="text" className="input focus:outline-none input-bordered w-full" />
+                                                {errors.title && touched.title && <div className="text-red-500">{errors.title}</div>}
                                             </label>
 
                                         </div>
 
                                         <div>
-                                            <label className="form-control w-full relative" htmlFor="email" >
+                                            <label className="form-control w-full relative" htmlFor="sku" >
                                                 <div className="label">
-                                                    <span className="label-text">Email</span>
+                                                    <span className="label-text">SKU</span>
                                                 </div>
-                                                <Field id="email" name="email" value={values.email} onChange={handleChange} type="text" className="input focus:outline-none input-bordered w-full" />
-                                                {errors.email && touched.email && <div className="text-red-500">{errors.email}</div>}
+                                                <Field id="sku" name="sku" value={values.sku} onChange={handleChange} type="text" className="input focus:outline-none input-bordered w-full" />
+                                                {errors.sku && touched.sku && <div className="text-red-500">{errors.sku}</div>}
                                             </label>
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                        <label className="form-control w-full relative" htmlFor="username" >
+                                        <label className="form-control w-full relative" htmlFor="category" >
                                             <div className="label">
-                                                <span className="label-text">Username</span>
+                                                <span className="label-text">category</span>
                                             </div>
-                                            <Field id="username" name="username" value={values.username} onChange={handleChange} type="text" className="input focus:outline-none input-bordered w-full" />
-                                            {errors.username && touched.username && <div className="text-red-500">{errors.username}</div>}
+                                            <Field as="select" name="category" className="select select-bordered w-full" value={values.category} onChange={(e) => handleCategoryChange(e.target.value, handleChange)}>
+                                                {isCategoryFetching ? "loading" : (
+                                                    <>
+                                                        <option value="" selected disabled hidden>Select Category</option>
+                                                        {categories.map((item) => (
+                                                            <option key={item._id} value={item._id}>{item.name}</option>))}
+                                                    </>
+                                                )}
+                                            </Field>
+                                            {errors.category && touched.category && <div className="text-red-500">{errors.category}</div>}
                                         </label>
-                                        <label className="form-control w-full relative" htmlFor="phone" >
+                                        <label className="form-control w-full relative" htmlFor="subCategory" >
                                             <div className="label">
-                                                <span className="label-text">Phone Number</span>
+                                                <span className="label-text">Sub category</span>
                                             </div>
-                                            <Field id="phone" name="phone" value={values.phone} onChange={handleChange} type="text" className="input focus:outline-none input-bordered w-full" placeholder="xxxxx xxx xxx" />
-                                            {errors.phone && touched.phone && <div className="text-red-500">{errors.phone}</div>}
+                                            <Field as="select" name="subCategory" className="select select-bordered w-full">
+                                                {isCategoryFetching ? "loading" : (
+                                                    <>
+                                                        {subCategories.length === 0 ? (
+                                                            <option value="" selected disabled>No Subcategories</option>
+                                                        ) : (
+                                                            <>
+                                                                <option value="" disabled hidden>Select Subcategory</option>
+                                                                {subCategories.map((item) => (
+                                                                    <option key={item._id} value={item._id}>{item.name}</option>
+                                                                ))}
+                                                            </>
+                                                        )}
+                                                    </>
+                                                )}
+                                            </Field>
+                                            {errors.category && touched.category && <div className="text-red-500">{errors.category}</div>}
+                                        </label>
+
+                                    </div>
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                        <label className="form-control w-full relative" htmlFor="productImages" >
+                                            <div className="label">
+                                                <span className="label-text">Product Images</span>
+                                            </div>
+                                            <input
+                                                id="productImages"
+                                                name="productImages"
+                                                type="file"
+                                                className="file-input file-input-bordered w-full"
+                                                multiple
+                                                accept="image/jpg, image/jpeg"
+                                                onChange={(event) => setFieldValue("productImages", event.currentTarget.files)}
+                                            />
+                                            {errors.productImages && touched.productImages && <div className="text-red-500">{errors.productImages}</div>}
+                                        </label>
+                                        <label className="form-control w-full relative" htmlFor="brand" >
+                                            <div className="label">
+                                                <span className="label-text">Brand</span>
+                                            </div>
+                                            <Field as="select" name="brand" className="select select-bordered w-full" value={values.brand} onChange={handleChange}>
+                                                {isBrandFetching ? "loading" : (
+                                                    <>
+                                                        <option value="" selected disabled hidden>Select brand</option>
+                                                        {brands.map((item) => (
+                                                            <option key={item._id} value={item._id}>{item.name}</option>))}
+                                                    </>
+                                                )}
+                                            </Field>
+                                            {errors.brand && touched.brand && <div className="text-red-500">{errors.brand}</div>}
                                         </label>
                                     </div>
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                                        <label className="form-control w-full relative" htmlFor="price" >
+                                            <div className="label">
+                                                <span className="label-text">Price</span>
+                                            </div>
+                                            <Field id="price" name="price" value={values.price} onChange={handleChange} type="text" className="input focus:outline-none input-bordered w-full" placeholder="xxxxx" />
+                                            {errors.price && touched.price && <div className="text-red-500">{errors.price}</div>}
+                                        </label>
+                                        <label className="form-control w-full relative" htmlFor="discountedPrice" >
+                                            <div className="label">
+                                                <span className="label-text">Discount Price</span>
+                                            </div>
+                                            <Field id="discountedPrice" name="discountedPrice" value={values.discountedPrice} onChange={handleChange} type="text" className="input focus:outline-none input-bordered w-full" placeholder="xxxxx" />
+                                            {errors.discountedPrice && touched.discountedPrice && <div className="text-red-500">{errors.discountedPrice}</div>}
+                                        </label>
+                                        <label className="form-control w-full relative" htmlFor="stock" >
+                                            <div className="label">
+                                                <span className="label-text">Stock</span>
+                                            </div>
+                                            <Field id="stock" name="stock" value={values.stock} onChange={handleChange} type="text" className="input focus:outline-none input-bordered w-full" placeholder="xxxxx" />
+                                            {errors.stock && touched.stock && <div className="text-red-500">{errors.stock}</div>}
+                                        </label>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+                                        <label className="form-control">
+                                            <div className="label">
+                                                <span className="label-text">Short description</span>
+                                            </div>
+                                            <textarea className="textarea textarea-bordered h-44" placeholder="Short description" name="shortDescription" onChange={handleChange}></textarea>
+                                        </label>
+                                        <label className="form-control">
+                                            <div className="label">
+                                                <span className="label-text">Description</span>
+                                            </div>
+                                            <textarea className="textarea textarea-bordered h-44" placeholder="Description" name="description" onChange={handleChange}></textarea>
+                                        </label>
+                                    </div>
+
                                     <div className="mt-4 flex">
                                         <button
                                             type="submit"
@@ -129,12 +209,7 @@ const AddProduct = () => {
                 </div>
             </div>
             {loading && <div className="h-screen flex justify-center items-center"><span className="loading loading-ring loading-lg"></span></div>}
-            <Table
-                data={tableData}
-                header={tableHeader}
-                handleDelete={handleDelete}
-                handleEdit={handleEdit}
-            />
+            <ProductManage />
         </div>
     );
 }

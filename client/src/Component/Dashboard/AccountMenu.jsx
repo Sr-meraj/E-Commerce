@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 const AccountMenu = ({ links }) => {
     const location = useLocation();
     return (
-        <ul className="menu bg-base-200 w-full rounded-box">
+        <ul className="menu bg-base-200 w-full rounded-box space-y-2">
             {links.map((link, index) => {
                 const PREFIX = link.prefix ? link.prefix : '';
 
