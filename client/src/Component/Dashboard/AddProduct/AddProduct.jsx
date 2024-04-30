@@ -1,5 +1,5 @@
 import { Field, Form, Formik } from "formik";
-import { useState } from "react";
+import React, { useState } from "react";
 import { toast } from 'react-toastify';
 import useDataFetching from "../../../hook/useDataFatching";
 import { useAuthContext } from "../../../provider/AuthProvider";
@@ -8,41 +8,81 @@ import Modal from "../../Model/Model";
 import ProductManage from "./ProductManage";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 const AddProduct = () => {
     const [subCategories, setSubCategories] = useState([]);
-    // const apiUrl = `categories`;
-    const { data: categories, loading: isCategoryFetching, error: isCategoryError } = useDataFetching('categories');
-    const { data: brands, loading: isBrandFetching, error: isBrandError } = useDataFetching('brands');
+    const { data: categories, loading: isCategoryFetching } = useDataFetching('categories');
+    const { data: brands, loading: isBrandFetching } = useDataFetching('brands');
+    const { loading, currentUser } = useAuthContext();
 
-    const { loading, error, currentUser, updateAccountInfo } = useAuthContext();
+    const initialValues = {
+        title: '',
+        slug: '',
+        description: '',
+        price: '',
+        stock: '',
+        productImages: [],
+        category: '',
+        subCategory: '',
+        discountedPrice: '',
+        brand: '',
+        sku: '',
+        shortDescription: ''
+    };
 
-    const initialValues = { title: '', description: '', price: '', stock: '', productImages: [], category: '', subCategory: '', discountedPrice: '', brand: '', sku: '', shortDescription: '' };
+    const token = localStorage.getItem("access_token");
 
-    // Function to fetch subcategories based on the selected category
     const fetchSubcategories = async (categoryId) => {
         const subCategoriesUrl = `categories/${categoryId}/subcategories`;
         const { data } = await axiosInstance.get(subCategoriesUrl);
-        console.log(data.data);
-        setSubCategories(data?.data?.subcategories); // Update state with fetched subcategories
+        setSubCategories(data?.data?.subcategories);
     };
 
-    // Handler for category field value change
     const handleCategoryChange = (categoryId, handleChange) => {
-        fetchSubcategories(categoryId); // Fetch subcategories when category changes
-        // handleChange(); // Call Formik's handleChange to update form values
+        fetchSubcategories(categoryId);
         handleChange({ target: { name: 'category', value: categoryId } });
     };
 
-    const onSubmit = async (values) => {
+    const generateSlug = (title) => {
+        return title.toLowerCase().trim().replace(/\s+/g, '-');
+    };
+
+    const handleTitleChange = (e, handleChange, setFieldValue) => {
+        const title = e.target.value;
+        const slug = generateSlug(title);
+        handleChange(e);
+        setFieldValue('slug', slug);
+    };
+
+    const onSubmit = async (values, { resetForm }) => {
         await sleep(500);
+
+        const formData = new FormData();
+        Object.keys(values).forEach((key) => {
+            if (key !== 'productImages') {
+                formData.append(key, values[key]);
+            }
+        });
+        for (let i = 0; i < values.productImages.length; i++) {
+            formData.append('productImages', values.productImages[i]);
+        }
+
         try {
-            // const result = await axiosInstance.post('products/create', values);
-            const result = values
-            if (result) {
-                console.log(result);
-                toast.success('Account updated successfully!');
+            const result = await axiosInstance.post('products/create', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (result?.data?.success) {
+                resetForm();
+                document.getElementById('productImages').value = '';
+                document.getElementById('shortDescription').value = '';
+                document.getElementById('description').value = '';
+                document.getElementById('add_product').close();
+                toast.success('Product created successfully!');
             } else {
-                toast.error('Failed to update! Please try again later.');
+                toast.error('Failed to create! Please try again later.');
             }
         } catch (error) {
             toast.error('An error occurred! Please try again later.');
@@ -55,7 +95,7 @@ const AddProduct = () => {
             <div className="flex justify-between items-center border-b-2">
                 <h1 className="card-title">Add Product</h1>
                 <div className="overflow-hidden relative">
-                    <Modal title={"Add Product"} id="my_modal_1">
+                    <Modal title={"Add Product"} id="add_product">
                         <Formik initialValues={initialValues} onSubmit={onSubmit}>
                             {({ errors, isSubmitting, touched, values, handleChange, setFieldValue, setValues }) => (
                                 <Form action="">
@@ -65,12 +105,29 @@ const AddProduct = () => {
                                                 <div className="label">
                                                     <span className="label-text">Product Title</span>
                                                 </div>
-                                                <Field id="title" name="title" value={values.title} onChange={handleChange} type="text" className="input focus:outline-none input-bordered w-full" />
+                                                <Field
+                                                    id="title"
+                                                    name="title"
+                                                    value={values.title}
+                                                    onChange={(e) => handleTitleChange(e, handleChange, setFieldValue)}
+                                                    type="text"
+                                                    className="input focus:outline-none input-bordered w-full" />
                                                 {errors.title && touched.title && <div className="text-red-500">{errors.title}</div>}
                                             </label>
 
                                         </div>
 
+                                        <div>
+                                            <label className="form-control w-full relative" htmlFor="slug" >
+                                                <div className="label">
+                                                    <span className="label-text">Slug</span>
+                                                </div>
+                                                <Field id="slug" name="slug" value={values.slug} onChange={handleChange} type="text" className="input focus:outline-none input-bordered w-full" />
+                                                {errors.slug && touched.slug && <div className="text-red-500">{errors.slug}</div>}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                                         <div>
                                             <label className="form-control w-full relative" htmlFor="sku" >
                                                 <div className="label">
@@ -80,8 +137,6 @@ const AddProduct = () => {
                                                 {errors.sku && touched.sku && <div className="text-red-500">{errors.sku}</div>}
                                             </label>
                                         </div>
-                                    </div>
-                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                         <label className="form-control w-full relative" htmlFor="category" >
                                             <div className="label">
                                                 <span className="label-text">category</span>
@@ -183,13 +238,13 @@ const AddProduct = () => {
                                             <div className="label">
                                                 <span className="label-text">Short description</span>
                                             </div>
-                                            <textarea className="textarea textarea-bordered h-44" placeholder="Short description" name="shortDescription" onChange={handleChange}></textarea>
+                                            <textarea className="textarea textarea-bordered h-44" placeholder="Short description" name="shortDescription" id="shortDescription" onChange={handleChange}></textarea>
                                         </label>
                                         <label className="form-control">
                                             <div className="label">
                                                 <span className="label-text">Description</span>
                                             </div>
-                                            <textarea className="textarea textarea-bordered h-44" placeholder="Description" name="description" onChange={handleChange}></textarea>
+                                            <textarea className="textarea textarea-bordered h-44" placeholder="Description" id="description" name="description" onChange={handleChange}></textarea>
                                         </label>
                                     </div>
 

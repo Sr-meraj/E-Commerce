@@ -33,13 +33,13 @@ const CartSideBar = () => {
     return (
         <>
             <div className={`drawer drawer-end z-50`}>
-                <input id="my-drawer-4" type="checkbox" className="drawer-toggle" defaultChecked={isOpen} onChange={toggleSidebar} />
+                <input id="my-drawer-4" type="checkbox" className="drawer-toggle" onChange={toggleSidebar} />
                 <div className="drawer-content"></div>
                 <div className="drawer-side overflow-x-hidden overflow-y-auto">
-                    <label htmlFor="my-drawer-4" aria-label="close sidebar" className="drawer-overlay"></label>
+                    <label htmlFor="my-drawer-4" onClick={toggleSidebar} aria-label="close sidebar" className="drawer-overlay"></label>
                     <ul className="p-4 w-80 min-h-full bg-base-200 text-base-content">
                         <div>
-                            <label className="absolute end-4 top-4 text-gray-600 transition hover:scale-110 cursor-pointer" htmlFor="my-drawer-4">
+                            <label className="absolute end-4 top-4 text-gray-600 transition hover:scale-110 cursor-pointer" htmlFor="my-drawer-4" onClick={toggleSidebar}>
                                 <span className="sr-only">Close cart</span>
 
                                 <svg

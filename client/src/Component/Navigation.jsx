@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 import logo from '../assets/logo.svg';
 import { navigation } from '../config/NavigationData';
 import { useAuthContext } from '../provider/AuthProvider';
+import { toggleSidebar } from '../utility/cart-action';
 import CartSideBar from './cart/CartSideBar';
 
 function classNames(...classes) {
@@ -325,7 +326,7 @@ export default function Navigation() {
 
                                 {/* Cart */}
                                 <div className="flow-root">
-                                    <label htmlFor="my-drawer-4" className="group indicator cursor-pointer" >
+                                    <label htmlFor="my-drawer-4" className="group indicator cursor-pointer" onClick={toggleSidebar}>
                                         <span className="sr-only indicator-item badge badge-success text-white px-1.5 text-xs">0</span>
                                         <HiOutlineShoppingBag
                                             className="h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500"

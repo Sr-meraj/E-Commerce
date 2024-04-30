@@ -2,13 +2,13 @@ import React from 'react';
 import { FiEye, FiEyeOff, FiTrash2 } from "react-icons/fi";
 import { HiOutlinePencilAlt } from "react-icons/hi";
 
-const TableRow = ({ data, header, handleDelete, handleEdit }) => {
+const TableRow = ({ data, header, handleDelete, handleEdit, rowIndex }) => {
     return (
         <tr>
             {/* {header?.map((column, index) => (
                 <th key={index}>{data[column]}</th>
             ))} */}
-            <th>1</th>
+            <th>{rowIndex}</th>
             <td>
                 <div className="flex items-center gap-3">
                     <div className="avatar">
@@ -73,6 +73,7 @@ const Table = ({ data, header, handleDelete, handleEdit }) => {
                             header={header}
                             handleDelete={handleDelete}
                             handleEdit={handleEdit}
+                            rowIndex={index + 1}
                         />
                     ))}
                 </tbody>

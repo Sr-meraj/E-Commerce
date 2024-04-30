@@ -11,7 +11,7 @@ const AdminLayout = ({ user, links }) => {
         <div>
             <div className='admin'>
                 <div className="grid grid-cols-12 gap-6">
-                    <div className="col-span-5 md:col-span-3">
+                    <div className="col-span-5 md:col-span-3 bg-base-200 w-full rounded-box">
                         <AccountMenu links={links} />
                     </div>
                     <div className="col-span-7 md:col-span-9">
