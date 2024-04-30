@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { createProduct, deleteProduct, getAllProducts, getProduct, getTotalProducts, productsBasedOnCategory, productUpdate } from '../controllers/product.controller.js'
-import { verifyJWT } from '../middleweres/auth.middlewere.js'
+import { adminCheck, verifyJWT } from '../middleweres/auth.middlewere.js'
 import { upload } from '../middleweres/multer.middlewere.js'
 
 const router = Router()
@@ -33,7 +33,7 @@ router.route("/update/:id").put(
     ]),
     productUpdate
 )
-router.route('/delete/:id').delete(verifyJWT, deleteProduct)
+router.route('/delete/:id').delete(verifyJWT, adminCheck, deleteProduct)
     
 export default router 
 

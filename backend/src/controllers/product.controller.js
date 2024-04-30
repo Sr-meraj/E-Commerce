@@ -561,7 +561,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
         await Product.findByIdAndDelete(prodId);
 
         // Send the response with a 204 status code and success message
-        res.status(204).json(new ApiResponse(204, '', 'Product has been deleted Successfully!'));
+        res.status(204).json(new ApiResponse(204, prodId, 'Product has been deleted Successfully!'));
     } catch (error) {
         // Handle any errors that occurred during the process
         res.status(error.status || 500).json(new ApiResponse(error.status || 500, null, error.message));
